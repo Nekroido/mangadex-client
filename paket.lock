@@ -1,0 +1,18 @@
+STORAGE: NONE
+RESTRICTION: || (== net5.0) (== netstandard2.0) (== netstandard2.1)
+NUGET
+  remote: https://api.nuget.org/v3/index.json
+    FSharp.Core (6.0.1)
+    FSharp.Data (4.2.4)
+      FSharp.Core (>= 4.7.2)
+    Spectre.Console (0.42)
+      System.Memory (>= 4.5) - restriction: || (== netstandard2.0) (== netstandard2.1)
+      Wcwidth (>= 0.2)
+    System.Buffers (4.5.1) - restriction: || (== netstandard2.0) (== netstandard2.1)
+    System.Memory (4.5.4) - restriction: || (== netstandard2.0) (== netstandard2.1)
+      System.Buffers (>= 4.5.1) - restriction: || (&& (== net5.0) (>= monotouch)) (&& (== net5.0) (>= net461)) (&& (== net5.0) (< netcoreapp2.0)) (&& (== net5.0) (< netstandard1.1)) (&& (== net5.0) (< netstandard2.0)) (&& (== net5.0) (>= xamarinios)) (&& (== net5.0) (>= xamarinmac)) (&& (== net5.0) (>= xamarintvos)) (&& (== net5.0) (>= xamarinwatchos)) (== netstandard2.0) (== netstandard2.1)
+      System.Numerics.Vectors (>= 4.4) - restriction: || (&& (== net5.0) (< netcoreapp2.0)) (== netstandard2.0) (== netstandard2.1)
+      System.Runtime.CompilerServices.Unsafe (>= 4.5.3) - restriction: || (&& (== net5.0) (>= monotouch)) (&& (== net5.0) (>= net461)) (&& (== net5.0) (< netcoreapp2.0)) (&& (== net5.0) (< netcoreapp2.1)) (&& (== net5.0) (< netstandard1.1)) (&& (== net5.0) (< netstandard2.0)) (&& (== net5.0) (>= uap10.1)) (&& (== net5.0) (>= xamarinios)) (&& (== net5.0) (>= xamarinmac)) (&& (== net5.0) (>= xamarintvos)) (&& (== net5.0) (>= xamarinwatchos)) (== netstandard2.0) (== netstandard2.1)
+    System.Numerics.Vectors (4.5) - restriction: || (== netstandard2.0) (== netstandard2.1)
+    System.Runtime.CompilerServices.Unsafe (5.0) - restriction: || (== netstandard2.0) (== netstandard2.1)
+    Wcwidth (0.6)
