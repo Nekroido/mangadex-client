@@ -37,7 +37,10 @@ let mangaListSample = baseUrl + "manga?title=darling"
 
 type MangaList = JsonProvider<mangaListSample>
 
-let list = [ ("title", "darling in the franxx") ] |> GET "manga" |> MangaList.Load
+let list =
+    [ ("title", "darling in the franxx") ]
+    |> GET "manga"
+    |> MangaList.Load
 
 let hit = list.Data |> Seq.head
 

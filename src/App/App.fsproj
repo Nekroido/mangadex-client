@@ -8,6 +8,10 @@
     <Compile Include="Utils.fs" />
     <Compile Include="Console.fs" />
     <Compile Include="Data.fs" />
+    <Compile Include="Manga.fs" />
+    <Compile Include="Chapter.fs" />
+    <Compile Include="Download.fs" />
+    <Compile Include="File.fs" />
     <Compile Include="App.fs" />
     <Compile Include="Program.fs" />
     <None Include="test.fsx" />

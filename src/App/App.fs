@@ -6,7 +6,7 @@ open Console
 open Data
 
 type App() =
-    member x.Run() =
+    member _.Run() =
         let actions =
             SelectionPrompt<string>()
             |> SelectionPrompt.setTitle "Select action"
@@ -20,11 +20,11 @@ type App() =
             | "search" ->
                 let query = "Manga title:" |> Console.ask
 
-                sprintf "Searching for %s" query |> Console.echo
+                $"Searching for %s{query}" |> Console.echo
 
                 let mangaListResult =
-                    [ ("title", query) ]
-                    |> listManga
+                    query
+                    |> Manga.searchManga 30 0
                     |> Async.RunSynchronously
 
                 let items =
@@ -35,12 +35,12 @@ type App() =
 
                 let selectedManga = items |> Console.prompt
 
-                sprintf "Listing chapters for %s" selectedManga.Attributes.Title.En.Value
+                $"Listing chapters for %s{selectedManga.Attributes.Title.En.Value}"
                 |> Console.echo
 
                 let chapterListResult =
                     selectedManga
-                    |> listChapters []
+                    |> Chapter.listChapters 100 0
                     |> Async.RunSynchronously
 
                 let chapters =
@@ -53,8 +53,33 @@ type App() =
 
                 let selectedChapter = chapters |> Console.prompt
 
-                sprintf "Selected chapter %s" (selectedChapter |> Chapter.title)
+                $"Downloading chapter %s{selectedChapter |> Chapter.toString}..."
                 |> Console.echo
+
+                let baseUrl =
+                    selectedChapter
+                    |> Chapter.getChapterBaseUrl
+                    |> Async.RunSynchronously
+
+                selectedChapter
+                |> Chapter.getPages
+                |> Seq.mapi
+                    (fun index pageFile ->
+                        Download.downloadPage
+                            baseUrl
+                            selectedManga
+                            selectedChapter
+                            pageFile
+                            (index + 1))
+                |> Async.Sequential
+                |> Async.Ignore
+                |> Async.RunSynchronously
+
+                "Creating manga file..." |> Console.echo
+
+                File.createCBZ selectedManga selectedChapter
+
+                "Done!" |> Console.echo
 
                 ()
             | _ -> failwith "todo"

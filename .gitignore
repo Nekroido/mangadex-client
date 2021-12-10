@@ -351,6 +351,3 @@ MigrationBackup/
 
 # JetBrains
 .idea/
-
-# Paket dependency manager for NuGet
-.paket/

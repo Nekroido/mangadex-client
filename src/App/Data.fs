@@ -8,12 +8,17 @@ open Utils
 let BaseUrl = "https://api.mangadex.org/"
 
 [<Literal>]
+let ChapterServerSampleUrl =
+    BaseUrl
+    + "at-home/server/b9d10b86-c956-4191-b05b-6cce5143cee4"
+
+[<Literal>]
 let MangaListSampleUrl = BaseUrl + "manga?title=darling"
 
 [<Literal>]
 let ChapterListSampleUrl =
     BaseUrl
-    + "chapter?manga=42caa178-b6dc-4ed1-bcbf-18f457bbd121"
+    + "chapter?manga=42caa178-b6dc-4ed1-bcbf-18f457bbd121&translatedLanguage%5b%5d=en&order%5bchapter%5d=asc&limit=100&offset=0"
 
 let makeRequestUrl endpoint args : string =
     let query =
@@ -33,20 +38,13 @@ let makeRequestUrl endpoint args : string =
 
 open FSharp.Data
 
+type ChapterServer = JsonProvider<ChapterServerSampleUrl>
 type ChapterList = JsonProvider<ChapterListSampleUrl>
 type MangaList = JsonProvider<MangaListSampleUrl>
 
+type Server = ChapterServer.Root
 type Chapter = ChapterList.Datum
 type Manga = MangaList.Datum
-
-let listChapters args (manga: Manga) =
-    let id = manga.Id.ToString()
-
-    makeRequestUrl "chapter" (("manga", manga.Id.ToString()) :: args)
-    |> ChapterList.AsyncLoad
-
-let listManga args =
-    makeRequestUrl "manga" args |> MangaList.AsyncLoad
 
 module Manga =
     type T = Manga
@@ -55,12 +53,28 @@ module Manga =
         manga.Attributes.Title.En
         |> Option.defaultValue "---"
 
+    let toString (manga: T) = manga |> title
+
 module Chapter =
     type T = Chapter
 
-    let title (chapter: T) =
+    let getPages (chapter: T) = chapter.Attributes.Data
+
+    let getChapterNumber (chapter: T) =
+        chapter.Attributes.Chapter.ToString("000.###")
+
+    let getTitle (chapter: T) =
         chapter.Attributes.Title
         |> Option.defaultValue "---"
 
+    let getVolume (chapter: T) =
+        chapter.Attributes.Volume.ToString("00")
+
+    let getTranslatedLanguage (chapter: T) = chapter.Attributes.TranslatedLanguage
+
+    let getPublishDate (chapter: T) = chapter.Attributes.PublishAt
+
+    let getHash (chapter: T) = chapter.Attributes.Hash.ToString("N")
+
     let toString (chapter: T) =
-        sprintf "C%02d - %s" chapter.Attributes.Chapter (chapter |> title)
+        $"V%s{chapter |> getVolume}-C%s{chapter |> getChapterNumber} - %s{chapter |> getTranslatedLanguage}"

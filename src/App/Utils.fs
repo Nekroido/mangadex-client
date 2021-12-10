@@ -1,6 +1,7 @@
 namespace Utils
 
 open System
+open System.IO
 
 module UriBuilder =
     let fromString (url: string) = UriBuilder(url)
@@ -14,3 +15,7 @@ module UriBuilder =
         uriBuilder
 
     let toString (uriBuilder: UriBuilder) = uriBuilder.ToString()
+
+module Path =
+    let toSafePath (path: string) =
+        String.Join("_", Path.GetInvalidFileNameChars() |> path.Split)
