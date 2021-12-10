@@ -13,7 +13,9 @@ let ChapterServerSampleUrl =
     + "at-home/server/b9d10b86-c956-4191-b05b-6cce5143cee4"
 
 [<Literal>]
-let MangaListSampleUrl = BaseUrl + "manga?title=darling"
+let MangaListSampleUrl =
+    BaseUrl
+    + "manga?title=darling&includes[]=author&includes[]=artist"
 
 [<Literal>]
 let ChapterListSampleUrl =
@@ -49,11 +51,35 @@ type Manga = MangaList.Datum
 module Manga =
     type T = Manga
 
-    let title (manga: T) : string =
+    let getTitle (manga: T) : string =
         manga.Attributes.Title.En
         |> Option.defaultValue "---"
 
-    let toString (manga: T) = manga |> title
+    let getYear (manga: T) = manga.Attributes.Year
+
+    let getTags (manga: T) =
+        manga.Attributes.Tags
+        |> Seq.map (fun tag -> tag.Attributes.Name.En)
+
+    let getCredits (manga: T) =
+        let typeToRole t =
+            match t with
+            | "author" -> "Writer"
+            | "artist" -> "Artist"
+            | _ -> t
+
+        manga.Relationships
+        |> Seq.filter
+            (fun r ->
+                r.Attributes.IsSome
+                && [ "author"; "artist" ] |> Seq.contains r.Type)
+        |> Seq.map
+            (fun c ->
+                {| person = c.Attributes.Value.Name
+                   role = c.Type |> typeToRole
+                   primary = true |})
+
+    let toString (manga: T) = manga |> getTitle
 
 module Chapter =
     type T = Chapter
@@ -64,8 +90,7 @@ module Chapter =
         chapter.Attributes.Chapter.ToString("000.###")
 
     let getTitle (chapter: T) =
-        chapter.Attributes.Title
-        |> Option.defaultValue "---"
+        chapter.Attributes.Title |> Option.defaultValue ""
 
     let getVolume (chapter: T) =
         chapter.Attributes.Volume.ToString("00")
@@ -75,6 +100,12 @@ module Chapter =
     let getPublishDate (chapter: T) = chapter.Attributes.PublishAt
 
     let getHash (chapter: T) = chapter.Attributes.Hash.ToString("N")
+
+    let getFormattedTitle (chapter: T) =
+        [| $"Volume {chapter |> getVolume} Chapter {chapter |> getChapterNumber}"
+           chapter |> getTitle |]
+        |> Seq.filter (fun x -> System.String.IsNullOrWhiteSpace(x) = false)
+        |> String.concat " - "
 
     let toString (chapter: T) =
         $"V%s{chapter |> getVolume}-C%s{chapter |> getChapterNumber} - %s{chapter |> getTranslatedLanguage}"

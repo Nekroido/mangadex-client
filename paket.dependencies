@@ -2,6 +2,7 @@ source https://api.nuget.org/v3/index.json
 
 storage: none
 framework: net5.0
+nuget DotNetZip
 nuget FSharp.Core
 nuget FSharp.Data
 nuget Spectre.Console

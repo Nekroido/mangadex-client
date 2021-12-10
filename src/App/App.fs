@@ -31,7 +31,7 @@ type App() =
                     SelectionPrompt<Manga>()
                     |> SelectionPrompt.setTitle "Found works:"
                     |> SelectionPrompt.addChoices mangaListResult.Data
-                    |> SelectionPrompt.withConverter (Func<Manga, string>(Manga.title))
+                    |> SelectionPrompt.withConverter (Func<Manga, string>(Manga.getTitle))
 
                 let selectedManga = items |> Console.prompt
 
@@ -70,7 +70,7 @@ type App() =
                             selectedManga
                             selectedChapter
                             pageFile
-                            (index + 1))
+                            index)
                 |> Async.Sequential
                 |> Async.Ignore
                 |> Async.RunSynchronously

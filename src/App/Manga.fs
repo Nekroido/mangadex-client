@@ -9,6 +9,8 @@ let listManga args =
 let searchManga limit offset (query: string) =
     [ ("title", query)
       ("order[relevance]", "desc")
+      ("includes[]", "author")
+      ("includes[]", "artist")
       ("limit", $"%d{limit}")
       ("offset", $"%d{offset}") ]
     |> listManga
