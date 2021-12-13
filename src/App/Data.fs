@@ -47,6 +47,7 @@ type MangaList = JsonProvider<MangaListSampleUrl>
 type Server = ChapterServer.Root
 type Chapter = ChapterList.Datum
 type Manga = MangaList.Datum
+type Relationship = MangaList.Relationship
 
 module Manga =
     type T = Manga
@@ -61,23 +62,12 @@ module Manga =
         manga.Attributes.Tags
         |> Seq.map (fun tag -> tag.Attributes.Name.En)
 
-    let getCredits (manga: T) =
-        let typeToRole t =
-            match t with
-            | "author" -> "Writer"
-            | "artist" -> "Artist"
-            | _ -> t
-
+    let getCredits (manga: T) : Relationship seq =
         manga.Relationships
         |> Seq.filter
             (fun r ->
                 r.Attributes.IsSome
                 && [ "author"; "artist" ] |> Seq.contains r.Type)
-        |> Seq.map
-            (fun c ->
-                {| person = c.Attributes.Value.Name
-                   role = c.Type |> typeToRole
-                   primary = true |})
 
     let toString (manga: T) = manga |> getTitle
 

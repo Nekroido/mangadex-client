@@ -27,7 +27,9 @@ let downloadPage baseUrl (manga: Manga) (chapter: Chapter) (pageFile: string) pa
 
         let temporaryFolder = getTemporaryFolder manga chapter
 
-        temporaryFolder |> Directory.CreateDirectory |> ignore
+        temporaryFolder
+        |> Directory.CreateDirectory
+        |> ignore
 
         let downloadPath =
             [| temporaryFolder
@@ -42,4 +44,19 @@ let downloadPage baseUrl (manga: Manga) (chapter: Chapter) (pageFile: string) pa
         do!
             request.ResponseStream.CopyToAsync(outputFile)
             |> Async.AwaitTask
+    }
+
+let downloadFile downloadUrl output =
+    async {
+        let! request = downloadUrl |> Http.AsyncRequestStream
+
+        match request.StatusCode with
+        | x when x = 200 ->
+            do!
+                request.ResponseStream.CopyToAsync(output)
+                |> Async.AwaitTask
+
+            return Result.Ok output
+        | _ ->
+            return Result.Error $"File download resulted in {request.StatusCode} status"
     }

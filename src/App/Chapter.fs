@@ -24,3 +24,6 @@ let getChapterBaseUrl (chapter: Chapter) =
 
         return result.BaseUrl
     }
+
+let getChapterPageDownloadUrl baseUrl quality chapter page =
+    $"{baseUrl}/{quality}/{chapter |> Chapter.getHash}/{page}"

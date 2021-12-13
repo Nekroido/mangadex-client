@@ -1,22 +1,64 @@
 module App
 
-open System
-open Spectre.Console
 open Console
-open Data
+open Pages
 
-type App() =
+[<RequireQualifiedAccess>]
+type Quality =
+    | High
+    | Low
+
+[<RequireQualifiedAccess>]
+type Language =
+    | English
+    | Japanese
+
+type AppSettings =
+    { Quality: Quality
+      Language: Language }
+
+type App(settings: AppSettings) =
+    member _.Exit() = "Exiting..." |> Console.echo
+
+    member _.Search() = ()
+
     member _.Run() =
-        let actions =
+        Root.initialize ()
+
+        (*let actions =
             SelectionPrompt<string>()
             |> SelectionPrompt.setTitle "Select action"
-            |> SelectionPrompt.addChoices [| "search"
+            |> SelectionPrompt.addChoices [| "test"
+                                             "search"
                                              "exit" |]
 
         actions
         |> Console.prompt
         |> function
             | "exit" -> Console.echo "Exiting..."
+            | "test" ->
+                let selectedManga =
+                    askForMangaTitle ()
+                    |> searchMangaByTitle
+                    |> Result.proceedIfOk
+                    |> listMangaOptions
+                    |> Console.prompt
+
+                let mangaChapters =
+                    selectedManga
+                    |> getMangaChapters
+                    |> Result.proceedIfOk
+
+                let selectedChapterNames =
+                    mangaChapters.Data
+                    |> listChapterOptions
+                    |> Console.prompt
+
+                handleChapterSelections selectedChapterNames mangaChapters.Data
+                |> Seq.map (fun chapter -> chapter |> Chapter.getFormattedTitle)
+                |> Seq.iter Console.echo
+
+                "Done!" |> Console.echo
             | "search" ->
                 let query = "Manga title:" |> Console.ask
 
@@ -82,8 +124,23 @@ type App() =
                 "Done!" |> Console.echo
 
                 ()
-            | _ -> failwith "todo"
+            | _ -> failwith "todo"*)
 
         0
+
+type AppBuilder() =
+    member _.Yield _ =
+        { Quality = Quality.High
+          Language = Language.English }
+
+    [<CustomOperation("quality")>]
+    member _.SetQuality(settings, quality) = { settings with Quality = quality }
+
+    [<CustomOperation("language")>]
+    member _.SetLanguage(settings, language) = { settings with Language = language }
+
+    member _.Run(settings) = App(settings)
+
+let application = AppBuilder()
 
 let run (app: App) = app.Run()

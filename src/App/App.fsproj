@@ -12,9 +12,13 @@
     <Compile Include="Chapter.fs" />
     <Compile Include="Download.fs" />
     <Compile Include="File.fs" />
+    <Compile Include="Pages\Manga.fs" />
+    <Compile Include="Pages\Search.fs" />
+    <Compile Include="Pages\Root.fs" />
     <Compile Include="App.fs" />
     <Compile Include="Program.fs" />
     <None Include="test.fsx" />
+    <None Include="test2.fsx" />
   </ItemGroup>
   <Import Project="..\..\.paket\Paket.Restore.targets" />
 </Project>
