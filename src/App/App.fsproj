@@ -18,7 +18,6 @@
     <Compile Include="Pages\Search.fs" />
     <Compile Include="Pages\Preferences.fs" />
     <Compile Include="Pages\Root.fs" />
-    <Compile Include="App.fs" />
     <Compile Include="Program.fs" />
     <None Include="test.fsx" />
     <None Include="test2.fsx" />
