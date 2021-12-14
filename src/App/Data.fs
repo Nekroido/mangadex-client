@@ -94,8 +94,7 @@ module Chapter =
     let getFormattedTitle (chapter: T) =
         [| $"Volume {chapter |> getVolume} Chapter {chapter |> getChapterNumber}"
            chapter |> getTitle |]
-        |> Seq.filter (fun x -> System.String.IsNullOrWhiteSpace(x) = false)
-        |> String.concat " - "
+        |> String.join " - "
 
     let toString (chapter: T) =
         $"V%s{chapter |> getVolume}-C%s{chapter |> getChapterNumber} - %s{chapter |> getTranslatedLanguage}"

@@ -5,15 +5,18 @@
     <TargetFramework>net5.0</TargetFramework>
   </PropertyGroup>
   <ItemGroup>
+    <EmbeddedResource Include="preferences.yaml" />
     <Compile Include="Utils.fs" />
     <Compile Include="Console.fs" />
     <Compile Include="Data.fs" />
     <Compile Include="Manga.fs" />
     <Compile Include="Chapter.fs" />
+    <Compile Include="Preferences.fs" />
     <Compile Include="Download.fs" />
     <Compile Include="File.fs" />
     <Compile Include="Pages\Manga.fs" />
     <Compile Include="Pages\Search.fs" />
+    <Compile Include="Pages\Preferences.fs" />
     <Compile Include="Pages\Root.fs" />
     <Compile Include="App.fs" />
     <Compile Include="Program.fs" />

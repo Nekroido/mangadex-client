@@ -1,9 +1,26 @@
 module Console
 
 open System
-open System.Collections.Generic
 open System.Diagnostics
 open Spectre.Console
+open Spectre.Console.Rendering
+
+module Table =
+    let addColumns (columns: string seq) (table: Table) =
+        columns |> Seq.iter (table.AddColumn >> ignore)
+        table
+
+    let addRow (values: string seq) (table: Table) =
+        values |> Array.ofSeq |> table.AddRow |> ignore
+        table
+
+    let create columns = Table() |> addColumns columns
+
+module TextPrompt =
+    let setDefault value (prompt: TextPrompt<_>) = value |> prompt.DefaultValue
+
+    let create<'a> title defaultValue =
+        title |> TextPrompt<'a> |> setDefault defaultValue
 
 module SelectionPrompt =
     let setTitle title (prompt: SelectionPrompt<_>) =
@@ -53,6 +70,8 @@ module Console =
     let prompt prompt = prompt |> AnsiConsole.Prompt
 
     let echo (text: string) = text |> AnsiConsole.WriteLine
+
+    let render (something: IRenderable) = something |> AnsiConsole.Write
 
     let status title asyncExpression =
         AnsiConsole

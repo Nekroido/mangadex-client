@@ -5,6 +5,8 @@ NUGET
     DotNetZip (1.16)
       System.Security.Permissions (>= 4.7)
       System.Text.Encoding.CodePages (>= 4.7.1)
+    FSharp.Configuration (2.0)
+      FSharp.Core (>= 4.7)
     FSharp.Core (6.0.1)
     FSharp.Data (4.2.6)
       FSharp.Core (>= 4.7.2)

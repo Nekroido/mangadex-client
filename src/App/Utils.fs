@@ -39,3 +39,10 @@ module DiscriminatedUnion =
         typeof<'a>
         |> FSharpType.GetUnionCases
         |> Seq.map (fun caseInfo -> caseInfo |> createCase :?> 'a)
+
+[<RequireQualifiedAccess>]
+module String =
+    let join separator parts =
+        parts
+        |> Seq.filter (fun x -> String.IsNullOrWhiteSpace(x) = false)
+        |> String.concat separator
