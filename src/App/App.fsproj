@@ -5,11 +5,13 @@
     <TargetFramework>net5.0</TargetFramework>
   </PropertyGroup>
   <ItemGroup>
+    <EmbeddedResource Update="Strings.resx" />
     <EmbeddedResource Include="chapters-sample.json" />
     <EmbeddedResource Include="preferences.yaml" />
     <Compile Include="Utils.fs" />
     <Compile Include="Console.fs" />
     <Compile Include="Http.fs" />
+    <Compile Include="Strings.fs" />
     <Compile Include="Preferences.fs" />
     <Compile Include="Data.fs" />
     <Compile Include="Manga.fs" />

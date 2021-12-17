@@ -35,7 +35,7 @@ let showActions () =
     Console.clear ()
 
     MenuPrompt.create<Action>
-        "Select action"
+        (Strings.Strings.GetString "Page.Root.SelectAction")
         (DiscriminatedUnion.listCases<Action> ())
         Action.toString
     |> Console.prompt
