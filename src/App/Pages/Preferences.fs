@@ -13,7 +13,7 @@ let LanguageLabel = "Language"
 let QualityLabel = "Quality"
 
 [<Literal>]
-let ReturnLabel = "Return"
+let ReturnLabel = "← Return"
 
 [<RequireQualifiedAccess>]
 type Action =

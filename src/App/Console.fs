@@ -106,7 +106,8 @@ module Console =
                         |> Seq.map
                             (fun (KeyValue (title, expressions)) ->
                                 let task = title |> ctx.AddTask
-                                // max value is equal to the total number of async expressions
+                                // max value is equal to the total number
+                                // of async expressions
                                 task.MaxValue <- asyncExpressions |> Seq.length |> float
 
                                 expressions

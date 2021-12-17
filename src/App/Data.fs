@@ -15,12 +15,10 @@ let ChapterServerSampleUrl =
 [<Literal>]
 let MangaListSampleUrl =
     BaseUrl
-    + "manga?title=darling&includes[]=author&includes[]=artist"
+    + "manga?title=darling&includes[]=author&includes[]=artist&hasAvailableChapters=true"
 
 [<Literal>]
-let ChapterListSampleUrl =
-    BaseUrl
-    + "chapter?manga=42caa178-b6dc-4ed1-bcbf-18f457bbd121&translatedLanguage%5b%5d=en&order%5bchapter%5d=asc&limit=100&offset=0"
+let ChapterListSample = "chapters-sample.json"
 
 let makeRequestUrl endpoint args : string =
     let query =
@@ -41,7 +39,9 @@ let makeRequestUrl endpoint args : string =
 open FSharp.Data
 
 type ChapterServer = JsonProvider<ChapterServerSampleUrl>
-type ChapterList = JsonProvider<ChapterListSampleUrl>
+
+type ChapterList = JsonProvider<"chapters-sample.json">
+
 type MangaList = JsonProvider<MangaListSampleUrl>
 
 type Server = ChapterServer.Root
@@ -74,16 +74,31 @@ module Manga =
 module Chapter =
     type T = Chapter
 
-    let getPages (chapter: T) = chapter.Attributes.Data
+    open Preferences
+
+    let getPages quality (chapter: T) =
+        match quality with
+        | Quality.High -> chapter.Attributes.Data
+        | Quality.Low -> chapter.Attributes.DataSaver
 
     let getChapterNumber (chapter: T) =
         chapter.Attributes.Chapter.ToString("000.###")
+
+    let getFormattedChapterNumber (chapter: T) =
+        $"Chapter {chapter |> getChapterNumber}"
 
     let getTitle (chapter: T) =
         chapter.Attributes.Title |> Option.defaultValue ""
 
     let getVolume (chapter: T) =
-        chapter.Attributes.Volume.ToString("00")
+        chapter.Attributes.Volume
+        |> Option.bind (fun volume -> volume.ToString("00") |> Some)
+
+    let getFormattedVolume (chapter: T) =
+        chapter
+        |> getVolume
+        |> Option.bind (fun volume -> $"Volume {volume}" |> Some)
+        |> Option.defaultValue ""
 
     let getTranslatedLanguage (chapter: T) = chapter.Attributes.TranslatedLanguage
 
@@ -92,9 +107,10 @@ module Chapter =
     let getHash (chapter: T) = chapter.Attributes.Hash.ToString("N")
 
     let getFormattedTitle (chapter: T) =
-        [| $"Volume {chapter |> getVolume} Chapter {chapter |> getChapterNumber}"
+        [| chapter |> getFormattedVolume
+           chapter |> getFormattedChapterNumber
            chapter |> getTitle |]
         |> String.join " - "
 
     let toString (chapter: T) =
-        $"V%s{chapter |> getVolume}-C%s{chapter |> getChapterNumber} - %s{chapter |> getTranslatedLanguage}"
+        $"%s{chapter |> getFormattedTitle}[%s{chapter |> getTranslatedLanguage}]"

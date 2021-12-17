@@ -1,0 +1,131 @@
+{
+  "result": "ok",
+  "response": "collection",
+  "data": [
+    {
+      "id": "90d51853-fc98-4e27-8863-a5bd6dd0740e",
+      "type": "chapter",
+      "attributes": {
+        "volume": null,
+        "chapter": "1.5",
+        "title": null,
+        "translatedLanguage": "en",
+        "hash": "a6b9dd0f3aa1b6e657c45fb4f8c80af3",
+        "data": [
+          "1-48dfb8dbb5d438f8bf81c300b0ce604146bdc437f0d28f5d4f0904f7ebc7669f.png",
+          "2-8cac66ada00fc36d6ec3a8412927ab962ebcd32dbfac53fcd4e104a0808d69f7.png",
+          "3-04e00e3501d56fa06f13de619358818b7502cf6b76ded1843d5b9e967ea7c747.png",
+          "4-27a50cdd15eef217777f55531123cc52a69bb0069eb250c3eebc9dc15dda1c06.png",
+          "5-58d6d7aff260d3d04548b9c9e6649a4ac93a85398ba30d6d57d053beb2a314e1.png",
+          "6-dc573551ccd21e0ad899db0c8abb4606933ace7cd8b35db7fc88eb25071c220f.png",
+          "7-7cc8aba50c925a624cddab75e2bf69032ff7ca79267cd88afa3b3ebcc07376cf.png",
+          "8-77439c03ac196a6c744d31787e4511b3b341d871f83cca2108418e80cf609870.png",
+          "9-a77ff77097a45f5854a798e8df453483bbc495ee266cfe36391269ca56011859.png",
+          "10-6aed300d35ccb05c805e4c8840882d2995ceff2c64a558cd324f2b49c908976e.png",
+          "11-9f16d75369c5ea637192ee236a3e73cac2f9aa80af50d4355793d98a9052d1b1.png"
+        ],
+        "dataSaver": [
+          "1-5fd15814c7a7e97b72a40594320e3cffc3f1e50817af90710206825d2fb1ef61.jpg",
+          "2-c38561a6b63dcf284992c85fc22b5052fdf3dcf53c75df6858d94d0a8b893212.jpg",
+          "3-c98632b2a79a88716825e75cd8ee8349f32c6a40e3924b52b34f9e29092ba77e.jpg",
+          "4-dbf4d7c24ee445ac35ac48a6ef3d7cd7cd8aae45a8142339e38c2e6d2192bcd1.jpg",
+          "5-d5a7599b4ef8f1e3d574fe208964f0453b288aae7b198c3becc7a20a9a34a27e.jpg",
+          "6-ec4d144f381eaf634f5b4b2edd785e625d658ce2eb504d52fb3b0b79cb5f0d61.jpg",
+          "7-51e20ef66a57a310fd41b52560f1ac3006708461c46f4a053dc971664f2d44be.jpg",
+          "8-c4c28495c03fa137b24b006164c2e00522dd4085f4873a760a004a9cc8e2a1df.jpg",
+          "9-ff279390957033e814c293c68cd532e3beb504df93fcd1fbd81099c4191e9f8a.jpg",
+          "10-1b3ec4783968de262f414edcf283516e15f218be4fd7ef4ce28a951d19c3bf6a.jpg",
+          "11-a9fd4f5863a3c5aeb4250872a9f0c92e37c18a1c6ec39013a5768e1d613c0182.jpg"
+        ],
+        "externalUrl": null,
+        "publishAt": "2020-07-24T21:20:33+00:00",
+        "createdAt": "2020-07-24T21:20:33+00:00",
+        "updatedAt": "2020-07-24T21:20:33+00:00",
+        "version": 1
+      },
+      "relationships": [
+        {
+          "id": "145f9110-0a6c-4b71-8737-6acb1a3c5da4",
+          "type": "scanlation_group"
+        },
+        {
+          "id": "31824ff0-fe87-4ae9-a14f-89e82a22d46f",
+          "type": "manga"
+        },
+        {
+          "id": "846f0542-2b06-4e8c-896c-6bdea001432e",
+          "type": "user"
+        }
+      ]
+    },
+    {
+      "id": "366eb76b-0354-4fa2-9054-4ddb5b354812",
+      "type": "chapter",
+      "attributes": {
+        "volume": "1",
+        "chapter": "1",
+        "title": "string",
+        "translatedLanguage": "en",
+        "hash": "dc17670f753e421a6350f44139caf626",
+        "data": [
+          "1-2eb78bef839bfafabc940bbf8c128645405dfdd0542985058c23d3485b22ec57.jpg",
+          "2-e5a01d62dc386a94a48c43140478468dfc96b9b7736e29f7456106f6c87ebc60.jpg",
+          "3-74baf3620f4031413855027e9f11ecbb764c307c6feaaff6bee27a6461b6bc0b.jpg",
+          "4-6d796f8f134cd5a2a592b11b29349e2aee2838bb9604099e1d76048a1adeaa52.jpg",
+          "5-de3cd8f6a5a36117d5bf089aca387a1e23aab9c40e32690666c2b5667e17035f.jpg",
+          "6-932cd3e3d42abe1774ec7b9cbefbab2a429bfd0c4a4912149749fe36304f3add.jpg",
+          "7-6c299487deea27bd3c2d0a7c74524903d28efb6e10df269eae6aac2f12fef10b.jpg",
+          "8-84759fa43d3d4a727135e347d94af85565a52df1109767a6c70233f78bb55c3b.jpg",
+          "9-a9ff19319eb3810fa14ba47c41813a7fd878df9cd661a20e5fba12a082d4b768.jpg",
+          "10-a5317265474d6af8897394a30595082e6b92dcfaf3d54f8e67c625bab34d7b35.jpg",
+          "11-2a1f57b2a5884316d370f2cae4163db448e9fd4f365fa064b500a108d3e911d2.jpg",
+          "12-906bc12a5cf18c65ec46626e5fdb3898f3d4c8da547585350aa70b367c025ac7.jpg",
+          "13-7a674441e41e431d7ccb3ed850bf4dd757df82cb89de5c4306fe8e2f82273a49.jpg",
+          "14-f223e17e2927835f71f15792253f9ce1a84cf8d44b38f9f073ff1112a0811500.jpg",
+          "15-f4d4bed8c37485a7988ddc049f907140c69198baf97d332e2fec65b377f35ef3.jpg",
+          "16-94f67ffeacfd91eaf434f30d1ca35484206e5d08f9827947ed543c521f273323.jpg"
+        ],
+        "dataSaver": [
+          "1-47edcc44d7b21b466751fba16664d21c8cb595936c685edfcb8b29ec11cc60cd.jpg",
+          "2-fb10503c5199f4afa56980cfb06c0f5f7320ded4e4c1e98a1df08dfb1e6d1b38.jpg",
+          "3-5f478419e1a3ce0aaf9dc4e440e40293b781fd00c743766ca99f40fa18bb82df.jpg",
+          "4-11a45f67b53a136dc8adeba13fc44cceb277e366053c2ec8dc83f3874ee69ec9.jpg",
+          "5-549ca19054535c8c2f5470cd50a6dc627626b4d5b19a6519e46a8821cf4f11c8.jpg",
+          "6-b5d757e02e94380381fcf0cd553f6d8114ac831233112e7a4fe5d325976200b7.jpg",
+          "7-63c900e2a08d16706a6d077525c3fe121a5cc436d4da5694d96963d8a27af5cc.jpg",
+          "8-f50543c61c58cf01fe9f59e6e9a96b920450f1e3f6efeae6e4aaf0600cb9a492.jpg",
+          "9-68b2065889c8dab549d693bcd03cd0aab4b8a6977838cad852330da0abb5b7e0.jpg",
+          "10-77b2fdb6c11b0ae45c2bd51968512b27e473f3a3ac4103feb569952d5856219f.jpg",
+          "11-f833744d1e9e1ed80b9b84af981a3ecb94031ac03e1f11bd18683f5056582ba5.jpg",
+          "12-8f637a4b6412ac911faa0e9b546e378997ce9ea02d78fc7f4ebf7ebd711257dd.jpg",
+          "13-7ded58983c39f09b05a1429d132689e7a1b3b5e192e41505160d5be9a453833b.jpg",
+          "14-919776e3add0f91d2e8dcf0d9003d0e4953d51f3bcd01718541fbabb54cf0ffc.jpg",
+          "15-8f944c4bb2a9739e3e1208b954dd55d974110ba9f41952fdd92655b3ca422a82.jpg",
+          "16-da627ab8bd2a0a22305912f4ef55bf30996ae7cc20cf944bfcb57065276e5312.jpg"
+        ],
+        "externalUrl": null,
+        "publishAt": "2020-08-16T16:35:46+00:00",
+        "createdAt": "2020-08-16T16:35:46+00:00",
+        "updatedAt": "2020-08-16T16:35:46+00:00",
+        "version": 1
+      },
+      "relationships": [
+        {
+          "id": "145f9110-0a6c-4b71-8737-6acb1a3c5da4",
+          "type": "scanlation_group"
+        },
+        {
+          "id": "31824ff0-fe87-4ae9-a14f-89e82a22d46f",
+          "type": "manga"
+        },
+        {
+          "id": "846f0542-2b06-4e8c-896c-6bdea001432e",
+          "type": "user"
+        }
+      ]
+    }
+  ],
+  "limit": 100,
+  "offset": 0,
+  "total": 2
+}

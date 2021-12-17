@@ -5,14 +5,15 @@
     <TargetFramework>net5.0</TargetFramework>
   </PropertyGroup>
   <ItemGroup>
+    <EmbeddedResource Include="chapters-sample.json" />
     <EmbeddedResource Include="preferences.yaml" />
     <Compile Include="Utils.fs" />
     <Compile Include="Console.fs" />
+    <Compile Include="Http.fs" />
+    <Compile Include="Preferences.fs" />
     <Compile Include="Data.fs" />
     <Compile Include="Manga.fs" />
     <Compile Include="Chapter.fs" />
-    <Compile Include="Preferences.fs" />
-    <Compile Include="Download.fs" />
     <Compile Include="File.fs" />
     <Compile Include="Pages\Manga.fs" />
     <Compile Include="Pages\Search.fs" />
@@ -21,6 +22,7 @@
     <Compile Include="Program.fs" />
     <None Include="test.fsx" />
     <None Include="test2.fsx" />
+    <None Include="test3.fsx" />
   </ItemGroup>
   <Import Project="..\..\.paket\Paket.Restore.targets" />
 </Project>

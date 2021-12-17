@@ -1,6 +1,7 @@
 module Chapter
 
 open Data
+open Preferences
 
 let listChapters limit offset (manga: Manga) =
     async {
@@ -26,4 +27,9 @@ let getChapterBaseUrl (chapter: Chapter) =
     }
 
 let getChapterPageDownloadUrl baseUrl quality chapter page =
+    let quality =
+        match quality with
+        | Quality.High -> "data"
+        | Quality.Low -> "data-saver"
+
     $"{baseUrl}/{quality}/{chapter |> Chapter.getHash}/{page}"

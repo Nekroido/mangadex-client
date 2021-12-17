@@ -6,7 +6,10 @@ open Console
 open Data
 open Utils
 
-let formatVolume volume = $"Volume {volume}"
+let formatVolume volume =
+    let volume = volume |> Option.defaultValue "-"
+
+    $"Volume {volume}"
 
 let formatChapter chapter =
     $"Chapter {chapter |> Chapter.getChapterNumber}"
@@ -18,7 +21,7 @@ let ListChaptersLabel = "Select chapters to download"
 let DownloadAllChaptersLabel = "Download all chapters"
 
 [<Literal>]
-let ReturnLabel = "Return"
+let ReturnLabel = "← Return"
 
 [<RequireQualifiedAccess>]
 type Action =
@@ -78,11 +81,21 @@ let filterChaptersByName (chapters: Chapter seq) (selectedChapters: string seq) 
             |> Seq.contains (chapter |> formatChapter))
 
 let downloadChapters (manga: Manga) (chapters: Chapter seq) =
+    let preferences = Preferences.loadPreferences ()
+    let preferredQuality = preferences |> Preferences.getQuality
+    let savePath = preferences |> Preferences.getSavePath
+
     let downloadPage (downloadServerUrl: string) chapter page =
         let downloadUrl =
-            Chapter.getChapterPageDownloadUrl downloadServerUrl "data" chapter page
+            Chapter.getChapterPageDownloadUrl
+                downloadServerUrl
+                preferredQuality
+                chapter
+                page
 
-        Async.Sleep 150
+        let stream = File.createStream ()
+
+        stream |> Http.fetchFile downloadUrl
 
     let downloadChapter chapter =
         let downloadServerUrl =
@@ -90,18 +103,48 @@ let downloadChapters (manga: Manga) (chapters: Chapter seq) =
             |> Chapter.getChapterBaseUrl
             |> Async.RunSynchronously
 
-        chapter
-        |> Chapter.getPages
-        |> Seq.map (downloadPage downloadServerUrl chapter)
+        let pages =
+            chapter |> Chapter.getPages preferredQuality
 
-    chapters
+        let pages =
+            pages
+            |> Seq.map (downloadPage downloadServerUrl chapter)
+            |> Async.Sequential
+            |> Async.RunSynchronously
+            |> Seq.map
+                (fun result ->
+                    result
+                    |> function
+                        | Ok page -> downcast page :> System.IO.Stream
+                        | Error ex -> failwith ex)
+            |> Seq.zip pages
+
+        let filename =
+            [| savePath
+               manga |> Manga.getTitle |> Path.toSafePath
+               $"{chapter |> Chapter.toString |> Path.toSafePath}.cbz" |]
+            |> Path.combine
+
+        let file =
+            File.cbzBuilder {
+                with_manga manga
+                with_chapter chapter
+                with_pages pages
+                save_path filename
+            }
+
+        file
+
+    chapters |> Seq.iter downloadChapter
+
+    (*chapters
     |> Seq.map
         (fun chapter ->
             $"Downloading {chapter |> Chapter.getFormattedTitle}",
             chapter |> downloadChapter)
     |> Map.ofSeq
     |> Console.progress
-    |> Async.RunSynchronously
+    |> Async.RunSynchronously*)
 
     ()
 

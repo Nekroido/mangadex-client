@@ -19,7 +19,19 @@ module UriBuilder =
     let toString (uriBuilder: UriBuilder) = uriBuilder.ToString()
 
 [<RequireQualifiedAccess>]
+module Directory =
+    let createForPath (path: string) =
+        path
+        |> Path.GetDirectoryName
+        |> Directory.CreateDirectory
+        |> ignore
+
+[<RequireQualifiedAccess>]
 module Path =
+    let combine (parts: string seq) = parts |> Array.ofSeq |> Path.Combine
+
+    let getFileExtension (path: string) = path |> Path.GetExtension
+
     let toSafePath (path: string) =
         String.Join("_", Path.GetInvalidFileNameChars() |> path.Split)
 

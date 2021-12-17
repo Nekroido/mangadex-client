@@ -10,7 +10,7 @@ let SearchMangaLabel = "Search manga"
 let PreferencesLabel = "Update preferences"
 
 [<Literal>]
-let ExitLabel = "Exit"
+let ExitLabel = "✕ Exit"
 
 [<RequireQualifiedAccess>]
 type Action =
