@@ -90,39 +90,17 @@ module Console =
                         ex.Message |> Result.Error)
             )
 
-    let progress (asyncExpressions: Map<string, Async<unit> seq>) =
+    let live title (asyncExpression: Async<unit>) =
         AnsiConsole
-            .Progress()
-            .Columns(
-                TaskDescriptionColumn(),
-                ProgressBarColumn(),
-                PercentageColumn(),
-                SpinnerColumn()
+            .Status()
+            .StartAsync(
+                title,
+                fun ctx ->
+                    task {
+                        try
+                            do! asyncExpression
+                        with
+                        | ex -> $"Exception: {ex.Message}" |> Debug.Fail
+                    }
             )
-            .StartAsync(fun ctx ->
-                task {
-                    return!
-                        asyncExpressions
-                        |> Seq.map
-                            (fun (KeyValue (title, expressions)) ->
-                                let task = title |> ctx.AddTask
-                                // max value is equal to the total number
-                                // of async expressions
-                                task.MaxValue <- asyncExpressions |> Seq.length |> float
-
-                                expressions
-                                |> Seq.map
-                                    (fun expr ->
-                                        async {
-                                            let! result = expr
-                                            do 1 |> task.Increment
-                                            return result
-                                        })
-                                // grouping expressions
-                                |> Async.Sequential
-                                |> Async.Ignore)
-                        // grouping expressions of expressions
-                        |> Async.Sequential
-                        |> Async.Ignore
-                })
         |> Async.AwaitTask

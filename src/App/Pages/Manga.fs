@@ -97,7 +97,7 @@ let downloadChapters (manga: Manga) (chapters: Chapter seq) =
 
         stream |> Http.fetchFile downloadUrl
 
-    let downloadChapter chapter =
+    let downloadChapterPages chapter =
         let downloadServerUrl =
             chapter
             |> Chapter.getChapterBaseUrl
@@ -106,19 +106,11 @@ let downloadChapters (manga: Manga) (chapters: Chapter seq) =
         let pages =
             chapter |> Chapter.getPages preferredQuality
 
-        let pages =
-            pages
-            |> Seq.map (downloadPage downloadServerUrl chapter)
-            |> Async.Sequential
-            |> Async.RunSynchronously
-            |> Seq.map
-                (fun result ->
-                    result
-                    |> function
-                        | Ok page -> downcast page :> System.IO.Stream
-                        | Error ex -> failwith ex)
-            |> Seq.zip pages
+        pages
+        |> Seq.map (downloadPage downloadServerUrl chapter)
+        |> Seq.zip pages
 
+    let createCbz pages chapter =
         let filename =
             [| savePath
                manga |> Manga.getTitle |> Path.toSafePath
@@ -135,18 +127,69 @@ let downloadChapters (manga: Manga) (chapters: Chapter seq) =
 
         file
 
-    chapters |> Seq.iter downloadChapter
+    let downloadPages downloadServerUrl chapter pages =
+        pages
+        |> Seq.map (downloadPage downloadServerUrl chapter)
 
-    (*chapters
+    chapters
     |> Seq.map
         (fun chapter ->
-            $"Downloading {chapter |> Chapter.getFormattedTitle}",
-            chapter |> downloadChapter)
-    |> Map.ofSeq
-    |> Console.progress
-    |> Async.RunSynchronously*)
+            async {
+                let pages =
+                    chapter |> Chapter.getPages preferredQuality
 
-    ()
+                let! downloadServerUrl =
+                    async {
+                        "Obtaining download server" |> Console.echo
+                        return! chapter |> Chapter.getChapterBaseUrl
+                    }
+
+                let! downloadedPages =
+                    pages
+                    |> downloadPages downloadServerUrl chapter
+                    |> Seq.mapi
+                        (fun index downloadExpr ->
+                            async {
+                                $"Downloading page {index + 1} of {pages |> Seq.length}"
+                                |> Console.echo
+
+                                return! downloadExpr
+                            })
+                    |> Async.Sequential
+
+                let isOk =
+                    downloadedPages |> Seq.forall Result.isOk
+
+                match isOk with
+                | true ->
+                    "Creating CBZ" |> Console.echo
+
+                    createCbz
+                        (downloadedPages
+                         |> Seq.map Result.proceedIfOk
+                         |> Seq.cast<System.IO.Stream>
+                         |> Seq.zip pages)
+                        chapter
+
+                    "Done!" |> Console.echo
+                | false ->
+                    "Not all pages were downloaded successfully! Skipping..."
+                    |> Console.echo
+            })
+    |> Seq.zip chapters
+    |> Seq.map
+        (fun (chapter, expr) ->
+            async {
+                do Console.clear ()
+
+                do!
+                    Console.live
+                        $"Obtaining chapter {chapter |> Chapter.getFormattedTitle}"
+                        expr
+            })
+    |> Async.Sequential
+    |> Async.Ignore
+    |> Async.RunSynchronously
 
 let handleAction returnAction manga action =
     action

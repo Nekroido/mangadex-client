@@ -37,6 +37,13 @@ module Path =
 
 [<RequireQualifiedAccess>]
 module Result =
+    let isOk result =
+        match result with
+        | Result.Ok _ -> true
+        | _ -> false
+
+    let isError result = result |> isOk |> not
+
     let proceedIfOk result =
         match result with
         | Result.Ok r -> r

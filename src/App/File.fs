@@ -87,7 +87,8 @@ type CBZBuilder() =
             (fun index (filename, page) ->
                 page.Seek(0, SeekOrigin.Begin) |> ignore
 
-                zip.AddEntry($"%03d{index}{filename |> Path.getFileExtension}", page)
+                // adding or updating entry
+                zip.UpdateEntry($"%03d{index}{filename |> Path.getFileExtension}", page)
                 |> ignore)
 
         zip.Save()
