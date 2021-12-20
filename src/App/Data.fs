@@ -91,17 +91,22 @@ module Chapter =
         | Quality.High -> chapter.Attributes.Data
         | Quality.Low -> chapter.Attributes.DataSaver
 
-    let getChapterNumber (chapter: T) =
-        chapter.Attributes.Chapter.ToString("000.###")
+    let getChapter (chapter: T) = chapter.Attributes.Chapter
 
     let getFormattedChapterNumber (chapter: T) =
-        $"Chapter {chapter |> getChapterNumber}"
+        (chapter |> getChapter).ToString("000.###")
+
+    let getFormattedChapter (chapter: T) =
+        $"Chapter {chapter |> getFormattedChapterNumber}"
 
     let getTitle (chapter: T) =
         chapter.Attributes.Title |> Option.defaultValue ""
 
-    let getVolume (chapter: T) =
-        chapter.Attributes.Volume
+    let getVolume (chapter: T) = chapter.Attributes.Volume
+
+    let getFormattedVolumeNumber (chapter: T) =
+        chapter
+        |> getVolume
         |> Option.bind (fun volume -> volume.ToString("00") |> Some)
 
     let getFormattedVolume (chapter: T) =
@@ -128,7 +133,7 @@ module Chapter =
 
     let getFormattedTitle (chapter: T) =
         [| chapter |> getFormattedVolume
-           chapter |> getFormattedChapterNumber
+           chapter |> getFormattedChapter
            chapter |> getTitle |]
         |> String.join " - "
 

@@ -7,4 +7,5 @@ nuget DotNetZip
 nuget FSharp.Configuration
 nuget FSharp.Core
 nuget FSharp.Data
+nuget FSharp.SystemTextJson
 nuget Spectre.Console

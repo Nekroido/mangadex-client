@@ -4,3 +4,4 @@ Spectre.Console
 DotNetZip
 FSharp.Configuration
 AsyncSeq
+FSharp.SystemTextJson

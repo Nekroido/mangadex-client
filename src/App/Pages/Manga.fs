@@ -13,7 +13,7 @@ let formatVolume volume =
     $"Volume {volume}"
 
 let formatChapter chapter =
-    [ $"Chapter {chapter |> Chapter.getChapterNumber}"
+    [ chapter |> Chapter.getFormattedChapter
       chapter |> Chapter.getFormattedTranslatorGroup ]
     |> String.join " - "
 
@@ -64,7 +64,7 @@ let showActions (manga: Manga) =
     manga |> renderMangaDetails |> Console.render
 
     MenuPrompt.create<Action>
-        $"Select action:"
+        "Select action:"
         (DiscriminatedUnion.listCases<Action> ())
         Action.toString
     |> Console.prompt
@@ -107,7 +107,7 @@ let selectChapters (chapters: Chapter seq) =
 
     chapters
     |> Seq.sortBy Chapter.getFormattedChapterNumber
-    |> Seq.groupBy Chapter.getVolume
+    |> Seq.groupBy Chapter.getFormattedVolumeNumber
     |> Seq.sortBy fst
     |> Seq.iter
         (fun (volume, volumeChapters) ->

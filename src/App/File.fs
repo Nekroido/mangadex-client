@@ -3,6 +3,7 @@ module File
 open System.IO
 open System.Text.Json
 
+open System.Text.Json.Serialization
 open Data
 open Utils
 
@@ -17,8 +18,8 @@ type Metadata =
       credits: Credits seq
       publicationYear: int option
       tags: string seq
-      volume: string option
-      issue: string }
+      volume: int option
+      issue: decimal }
 
 let private mapCredits (entity: Relationship) =
     let typeToRole t =
@@ -38,11 +39,13 @@ let private mapChapterMetadata (chapter: Chapter) (manga: Manga) =
       publicationYear = manga |> Manga.getYear
       tags = manga |> Manga.getTags
       volume = chapter |> Chapter.getVolume
-      issue = chapter |> Chapter.getChapterNumber }
+      issue = chapter |> Chapter.getChapter }
 
 let serialize metadata =
-    {| ``ComicBookInfo/1.0`` = metadata |}
-    |> JsonSerializer.Serialize
+    let options = JsonSerializerOptions()
+    options.Converters.Add(JsonFSharpConverter())
+
+    JsonSerializer.Serialize({| ``ComicBookInfo/1.0`` = metadata |}, options)
 
 let createStream () = new MemoryStream()
 
