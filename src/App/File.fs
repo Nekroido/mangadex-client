@@ -78,6 +78,10 @@ type CBZBuilder() =
 
         settings.SavePath |> Directory.createForPath
 
+        if File.Exists settings.SavePath then
+            // todo: delete existing file ?
+            File.Delete settings.SavePath
+
         use zip = new Ionic.Zip.ZipFile(settings.SavePath)
 
         zip.Comment <- metadata
