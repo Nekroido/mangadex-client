@@ -2,6 +2,7 @@ STORAGE: NONE
 RESTRICTION: == net5.0
 NUGET
   remote: https://api.nuget.org/v3/index.json
+    AsyncSeq (1.12)
     DotNetZip (1.16)
       System.Security.Permissions (>= 4.7)
       System.Text.Encoding.CodePages (>= 4.7.1)

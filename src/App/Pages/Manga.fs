@@ -4,6 +4,7 @@ open System
 
 open Console
 open Data
+open FSharpx.Control
 open Utils
 
 let formatVolume volume =
@@ -12,7 +13,9 @@ let formatVolume volume =
     $"Volume {volume}"
 
 let formatChapter chapter =
-    $"Chapter {chapter |> Chapter.getChapterNumber}"
+    [ $"Chapter {chapter |> Chapter.getChapterNumber}"
+      chapter |> Chapter.getFormattedTranslatorGroup ]
+    |> String.join " - "
 
 [<Literal>]
 let ListChaptersLabel = "Select chapters to download"
@@ -42,26 +45,69 @@ type Action =
         | ReturnLabel -> Action.Return
         | _ -> failwith $"Unknown action {x}"
 
+let renderMangaDetails (manga: Manga) =
+    Table.create [ "Title"
+                   "Authors"
+                   "Last chapter"
+                   "Status" ]
+    |> Table.addRow [ manga |> Manga.getTitle
+                      manga |> Manga.getFormattedCredits
+                      manga
+                      |> Manga.getLastChapterNumber
+                      |> Option.bind (sprintf "%i" >> Some)
+                      |> Option.defaultValue "-"
+                      manga |> Manga.getStatus ]
+
 let showActions (manga: Manga) =
     Console.clear ()
 
+    manga |> renderMangaDetails |> Console.render
+
     MenuPrompt.create<Action>
-        $"Manga {manga |> Manga.getTitle}"
+        $"Select action:"
         (DiscriminatedUnion.listCases<Action> ())
         Action.toString
     |> Console.prompt
 
 let fetchChapters (manga: Manga) =
-    manga
-    |> Chapter.listChapters 100 0
+    let preferredLanguage =
+        Preferences.getLanguage
+        <| Preferences.loadPreferences ()
+
+    let batchChapters offset =
+        async {
+            let! chapterListResult =
+                manga
+                |> Chapter.listChapters 100 offset preferredLanguage
+
+            if offset < chapterListResult.Total then
+                return
+                    Some
+                    <| (chapterListResult.Data |> List.ofSeq,
+                        chapterListResult.Data |> Seq.length)
+            else
+                return None
+        }
+
+    AsyncSeq.unfoldAsync batchChapters 0
+    |> AsyncSeq.concatSeq
+    |> AsyncSeq.toArray
     |> Console.status $"Fetching chapters for %s{manga |> Manga.getTitle}"
 
-let selectChapters (chapters: ChapterList.Root) =
+let filterDuplicatedChapters (chapters: Chapter seq) =
+    chapters
+    // prioritizing the latest chapters
+    |> Seq.sortByDescending Chapter.getPublishDate
+    |> Seq.distinctBy Chapter.getFormattedChapterNumber
+    |> Seq.sortBy Chapter.getFormattedChapterNumber
+
+let selectChapters (chapters: Chapter seq) =
     let prompt =
         MultiSelectionPrompt.create<string> "Select chapters:"
 
-    chapters.Data
-    |> Seq.groupBy (fun chapter -> chapter |> Chapter.getVolume)
+    chapters
+    |> Seq.sortBy Chapter.getFormattedChapterNumber
+    |> Seq.groupBy Chapter.getVolume
     |> Seq.sortBy fst
     |> Seq.iter
         (fun (volume, volumeChapters) ->
@@ -73,7 +119,7 @@ let selectChapters (chapters: ChapterList.Root) =
 
     prompt |> Console.prompt
 
-let filterChaptersByName (chapters: Chapter seq) (selectedChapters: string seq) =
+let pickChaptersByName (chapters: Chapter seq) (selectedChapters: string seq) =
     chapters
     |> Seq.filter
         (fun chapter ->
@@ -97,18 +143,9 @@ let downloadChapters (manga: Manga) (chapters: Chapter seq) =
 
         stream |> Http.fetchFile downloadUrl
 
-    let downloadChapterPages chapter =
-        let downloadServerUrl =
-            chapter
-            |> Chapter.getChapterBaseUrl
-            |> Async.RunSynchronously
-
-        let pages =
-            chapter |> Chapter.getPages preferredQuality
-
+    let downloadPages downloadServerUrl chapter pages =
         pages
         |> Seq.map (downloadPage downloadServerUrl chapter)
-        |> Seq.zip pages
 
     let createCbz pages chapter =
         let filename =
@@ -126,10 +163,6 @@ let downloadChapters (manga: Manga) (chapters: Chapter seq) =
             }
 
         file
-
-    let downloadPages downloadServerUrl chapter pages =
-        pages
-        |> Seq.map (downloadPage downloadServerUrl chapter)
 
     chapters
     |> Seq.map
@@ -200,9 +233,16 @@ let handleAction returnAction manga action =
 
             chapters
             |> selectChapters
-            |> filterChaptersByName chapters.Data
+            |> pickChaptersByName chapters
             |> downloadChapters manga
-        | Action.DownloadAllChapters -> returnAction ()
+            |> returnAction
+        | Action.DownloadAllChapters ->
+            manga
+            |> fetchChapters
+            |> Result.proceedIfOk
+            |> filterDuplicatedChapters
+            |> downloadChapters manga
+            |> returnAction
         | Action.Return -> returnAction ()
 
 let initialize returnAction (manga: Manga) =

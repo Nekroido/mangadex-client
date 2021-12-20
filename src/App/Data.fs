@@ -69,6 +69,16 @@ module Manga =
                 r.Attributes.IsSome
                 && [ "author"; "artist" ] |> Seq.contains r.Type)
 
+    let getFormattedCredits (manga: T) =
+        manga
+        |> getCredits
+        |> Seq.map (fun credit -> credit.Attributes.Value.Name)
+        |> String.join ", "
+
+    let getLastChapterNumber (manga: T) = manga.Attributes.LastChapter
+
+    let getStatus (manga: T) = manga.Attributes.Status
+
     let toString (manga: T) = manga |> getTitle
 
 module Chapter =
@@ -101,6 +111,16 @@ module Chapter =
         |> Option.defaultValue ""
 
     let getTranslatedLanguage (chapter: T) = chapter.Attributes.TranslatedLanguage
+
+    let getTranslatorGroups (chapter: T) =
+        chapter.Relationships
+        |> Seq.filter (fun r -> r.Attributes.IsSome && r.Type = "scanlation_group")
+
+    let getFormattedTranslatorGroup (chapter: T) =
+        chapter
+        |> getTranslatorGroups
+        |> Seq.map (fun r -> r.Attributes.Value.Name)
+        |> String.join ", "
 
     let getPublishDate (chapter: T) = chapter.Attributes.PublishAt
 

@@ -3,3 +3,4 @@ FSharp.Core
 Spectre.Console
 DotNetZip
 FSharp.Configuration
+AsyncSeq

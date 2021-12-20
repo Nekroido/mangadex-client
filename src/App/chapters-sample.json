@@ -112,7 +112,29 @@
       "relationships": [
         {
           "id": "145f9110-0a6c-4b71-8737-6acb1a3c5da4",
-          "type": "scanlation_group"
+          "type": "scanlation_group",
+          "attributes": {
+            "name": "Unknown",
+            "altNames": [],
+            "locked": false,
+            "website": null,
+            "ircServer": null,
+            "ircChannel": null,
+            "discord": null,
+            "contactEmail": null,
+            "description": null,
+            "twitter": null,
+            "focusedLanguages": [
+              "en"
+            ],
+            "official": false,
+            "verified": false,
+            "publishDelay": null,
+            "createdAt": "2021-04-19T21:45:59+00:00",
+            "updatedAt": "2021-04-19T21:45:59+00:00",
+            "inactive": false,
+            "version": 1
+          }
         },
         {
           "id": "31824ff0-fe87-4ae9-a14f-89e82a22d46f",
