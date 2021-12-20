@@ -18,7 +18,22 @@
     <resheader name="writer">
         <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
     </resheader>
-    <data name="Page.Root.SelectAction" xml:space="preserve">
+    <data name="Pages.Root.SelectAction" xml:space="preserve">
         <value>Select action</value>
+    </data>
+    <data name="Pages.Root.Actions.SearchManga" xml:space="preserve">
+        <value>Search manga</value>
+    </data>
+    <data name="Pages.Root.Actions.Preferences" xml:space="preserve">
+        <value>Update preferences</value>
+    </data>
+    <data name="Pages.Root.Actions.Exit" xml:space="preserve">
+        <value>✕ Exit</value>
+    </data>
+    <data name="Pages.Root.Messages.Exiting" xml:space="preserve">
+        <value>Exiting...</value>
+    </data>
+    <data name="Errors.UnknownAction" xml:space="preserve">
+        <value>Unknown action '{0}'</value>
     </data>
 </root>
