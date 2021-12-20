@@ -101,6 +101,13 @@ let filterDuplicatedChapters (chapters: Chapter seq) =
     |> Seq.distinctBy Chapter.getFormattedChapterNumber
     |> Seq.sortBy Chapter.getFormattedChapterNumber
 
+let pickChaptersByName (chapters: Chapter seq) (selectedChapters: string seq) =
+    chapters
+    |> Seq.filter
+        (fun chapter ->
+            selectedChapters
+            |> Seq.contains (chapter |> formatChapter))
+
 let selectChapters (chapters: Chapter seq) =
     let prompt =
         MultiSelectionPrompt.create<string> "Select chapters:"
@@ -117,14 +124,9 @@ let selectChapters (chapters: Chapter seq) =
                 (volumeChapters |> Seq.map formatChapter)
             |> ignore)
 
-    prompt |> Console.prompt
-
-let pickChaptersByName (chapters: Chapter seq) (selectedChapters: string seq) =
-    chapters
-    |> Seq.filter
-        (fun chapter ->
-            selectedChapters
-            |> Seq.contains (chapter |> formatChapter))
+    prompt
+    |> Console.prompt
+    |> pickChaptersByName chapters
 
 let downloadChapters (manga: Manga) (chapters: Chapter seq) =
     let preferences = Preferences.loadPreferences ()
@@ -224,27 +226,27 @@ let downloadChapters (manga: Manga) (chapters: Chapter seq) =
     |> Async.Ignore
     |> Async.RunSynchronously
 
-let handleAction returnAction manga action =
+let rec handleAction returnAction manga action =
+    let refresh () = manga |> initialize returnAction
+
     action
     |> function
         | Action.ListChapters ->
-            let chapters =
-                manga |> fetchChapters |> Result.proceedIfOk
-
-            chapters
+            manga
+            |> fetchChapters
+            |> Result.proceedIfOk
             |> selectChapters
-            |> pickChaptersByName chapters
             |> downloadChapters manga
-            |> returnAction
+            |> refresh
         | Action.DownloadAllChapters ->
             manga
             |> fetchChapters
             |> Result.proceedIfOk
             |> filterDuplicatedChapters
             |> downloadChapters manga
-            |> returnAction
+            |> refresh
         | Action.Return -> returnAction ()
 
-let initialize returnAction (manga: Manga) =
+and initialize returnAction (manga: Manga) =
     manga
     |> (showActions >> handleAction returnAction manga)

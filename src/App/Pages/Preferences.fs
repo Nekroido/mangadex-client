@@ -43,14 +43,14 @@ let askForSavePath (defaultPath: string) =
 
 let askForQuality (defaultQuality: Preferences.Quality) =
     MenuPrompt.create<Preferences.Quality>
-        "Select prerred quality"
+        "Select preferred quality"
         (DiscriminatedUnion.listCases<Preferences.Quality> ())
         Preferences.Quality.toString
     |> Console.prompt
 
 let askForLanguage (defaultQuality: Preferences.Language) =
     MenuPrompt.create<Preferences.Language>
-        "Select prerred language"
+        "Select preferred language"
         (DiscriminatedUnion.listCases<Preferences.Language> ())
         Preferences.Language.toString
     |> Console.prompt
@@ -74,7 +74,7 @@ let renderPreferencesTable (preferences: Preferences.Preferences) =
 let showActions () =
     Console.clear ()
 
-    $"Current preferences:" |> Console.echo
+    "Current preferences:" |> Console.echo
 
     getCurrentPreferences ()
     |> renderPreferencesTable
@@ -98,8 +98,7 @@ let rec handleAction returnAction action =
             |> updateSavePath
             <| currentPreferences
             |> Preferences.storePreferences
-
-            refresh ()
+            |> refresh
         | Action.Quality ->
             currentPreferences
             |> Preferences.getQuality
@@ -107,8 +106,7 @@ let rec handleAction returnAction action =
             |> updateQuality
             <| currentPreferences
             |> Preferences.storePreferences
-
-            refresh ()
+            |> refresh
         | Action.Language ->
             currentPreferences
             |> Preferences.getLanguage
@@ -116,8 +114,7 @@ let rec handleAction returnAction action =
             |> updateLanguage
             <| currentPreferences
             |> Preferences.storePreferences
-
-            refresh ()
+            |> refresh
         | _ -> returnAction ()
 
 and initialize returnAction =
