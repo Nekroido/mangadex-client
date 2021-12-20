@@ -3,12 +3,18 @@ module Chapter
 open Data
 open Preferences
 
-let listChapters limit offset (manga: Manga) =
+let listChapters limit offset language (manga: Manga) =
     async {
+        let preferredLanguage =
+            match language with
+            | Language.English -> "en"
+            | Language.Japanese -> "ja"
+
         let args =
             [ ("manga", $"%A{manga.Id}")
-              ("translatedLanguage[]", "en")
+              ("translatedLanguage[]", preferredLanguage)
               ("order[chapter]", "asc")
+              ("includes[]", "scanlation_group")
               ("limit", $"%d{limit}")
               ("offset", $"%d{offset}") ]
 
