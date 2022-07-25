@@ -15,7 +15,7 @@ let ChapterServerSampleUrl =
 [<Literal>]
 let MangaListSampleUrl =
     BaseUrl
-    + "manga?title=darling&includes[]=author&includes[]=artist&hasAvailableChapters=true"
+    + "manga?title=made&includes[]=author&includes[]=artist&hasAvailableChapters=true"
 
 [<Literal>]
 let ChapterListSample = "chapters-sample.json"
