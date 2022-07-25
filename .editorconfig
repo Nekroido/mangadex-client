@@ -1,0 +1,4 @@
+[*.{fs,fsx}]
+max_line_length=90
+end_of_line=lf
+insert_final_newline=true
