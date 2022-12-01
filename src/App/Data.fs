@@ -8,26 +8,27 @@ open Utils
 let BaseUrl = "https://api.mangadex.org/"
 
 [<Literal>]
-let ChapterServerSampleUrl =
+let ChapterDownloadSampleUrl =
     BaseUrl
-    + "at-home/server/b9d10b86-c956-4191-b05b-6cce5143cee4"
+    + "at-home/server/4610197f-9185-4838-8f17-406191547806"
 
 [<Literal>]
 let MangaListSampleUrl =
     BaseUrl
-    + "manga?title=darling&includes[]=author&includes[]=artist&hasAvailableChapters=true"
+    + "manga?title=made&includes[]=author&includes[]=artist&hasAvailableChapters=true&limit=50"
 
 [<Literal>]
-let ChapterListSample = "chapters-sample.json"
+let ChapterListSample =
+    BaseUrl
+    + "chapter?manga=42caa178-b6dc-4ed1-bcbf-18f457bbd121&translatedLanguage[]=en&includes[]scanlation_group&limit=50"
 
 let makeRequestUrl endpoint args : string =
     let query =
         args
-        |> Seq.map
-            (fun (key: string, value: string) ->
-                let k = HttpUtility.UrlEncode(key)
-                let v = HttpUtility.UrlEncode(value)
-                $"{k}={v}")
+        |> Seq.map (fun (key: string, value: string) ->
+            let k = HttpUtility.UrlEncode(key)
+            let v = HttpUtility.UrlEncode(value)
+            $"{k}={v}")
         |> String.concat "&"
 
     BaseUrl
@@ -38,13 +39,13 @@ let makeRequestUrl endpoint args : string =
 
 open FSharp.Data
 
-type ChapterServer = JsonProvider<ChapterServerSampleUrl>
+type ChapterDownload = JsonProvider<ChapterDownloadSampleUrl>
 
 type ChapterList = JsonProvider<"chapters-sample.json">
 
 type MangaList = JsonProvider<MangaListSampleUrl>
 
-type Server = ChapterServer.Root
+type ChapterDownloadInfo = ChapterDownload.Root
 type Chapter = ChapterList.Datum
 type Manga = MangaList.Datum
 type Relationship = MangaList.Relationship
@@ -64,10 +65,9 @@ module Manga =
 
     let getCredits (manga: T) : Relationship seq =
         manga.Relationships
-        |> Seq.filter
-            (fun r ->
-                r.Attributes.IsSome
-                && [ "author"; "artist" ] |> Seq.contains r.Type)
+        |> Seq.filter (fun r ->
+            r.Attributes.IsSome
+            && [ "author"; "artist" ] |> Seq.contains r.Type)
 
     let getFormattedCredits (manga: T) =
         manga
@@ -84,17 +84,15 @@ module Manga =
 module Chapter =
     type T = Chapter
 
-    open Preferences
-
-    let getPages quality (chapter: T) =
-        match quality with
-        | Quality.High -> chapter.Attributes.Data
-        | Quality.Low -> chapter.Attributes.DataSaver
+    open System.Globalization
 
     let getChapter (chapter: T) = chapter.Attributes.Chapter
 
     let getFormattedChapterNumber (chapter: T) =
-        (chapter |> getChapter).ToString("000.###")
+        chapter
+        |> getChapter
+        |> Option.bind (fun chapter -> chapter.ToString("000.###", CultureInfo.InvariantCulture) |> Some)
+        |> Option.defaultValue "-"
 
     let getFormattedChapter (chapter: T) =
         $"Chapter {chapter |> getFormattedChapterNumber}"
@@ -129,7 +127,7 @@ module Chapter =
 
     let getPublishDate (chapter: T) = chapter.Attributes.PublishAt
 
-    let getHash (chapter: T) = chapter.Attributes.Hash.ToString("N")
+    //let getHash (chapter: T) = chapter.Attributes.Hash.ToString("N")
 
     let getFormattedTitle (chapter: T) =
         [| chapter |> getFormattedVolume
@@ -139,3 +137,17 @@ module Chapter =
 
     let toString (chapter: T) =
         $"%s{chapter |> getFormattedTitle}[%s{chapter |> getTranslatedLanguage}]"
+
+module ChapterDownloadInfo =
+    type T = ChapterDownloadInfo
+    
+    open Preferences
+
+    let getBaseUrl (info: T) = info.BaseUrl
+
+    let getChapterHash (info: T) = info.Chapter.Hash |> stringf "n"
+
+    let getPages quality (info: T) =
+        match quality with
+        | Quality.High -> info.Chapter.Data
+        | Quality.Low -> info.Chapter.DataSaver

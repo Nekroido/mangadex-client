@@ -4,7 +4,7 @@ open System
 
 open Console
 open Data
-open FSharpx.Control
+open FSharp.Control
 open Utils
 
 let formatVolume volume =
@@ -54,7 +54,7 @@ let renderMangaDetails (manga: Manga) =
                       manga |> Manga.getFormattedCredits
                       manga
                       |> Manga.getLastChapterNumber
-                      |> Option.bind (sprintf "%i" >> Some)
+                      |> Option.bind (sprintf "%O" >> Some)
                       |> Option.defaultValue "-"
                       manga |> Manga.getStatus ]
 
@@ -63,10 +63,7 @@ let showActions (manga: Manga) =
 
     manga |> renderMangaDetails |> Console.render
 
-    MenuPrompt.create<Action>
-        "Select action:"
-        (DiscriminatedUnion.listCases<Action> ())
-        Action.toString
+    MenuPrompt.create<Action> "Select action:" (DiscriminatedUnion.listCases<Action> ()) Action.toString
     |> Console.prompt
 
 let fetchChapters (manga: Manga) =
@@ -74,24 +71,25 @@ let fetchChapters (manga: Manga) =
         Preferences.getLanguage
         <| Preferences.loadPreferences ()
 
+    let fetchLimit = 100
+
     let batchChapters offset =
         async {
             let! chapterListResult =
                 manga
-                |> Chapter.listChapters 100 offset preferredLanguage
+                |> Chapter.listChapters fetchLimit offset preferredLanguage
 
             if offset < chapterListResult.Total then
                 return
                     Some
-                    <| (chapterListResult.Data |> List.ofSeq,
-                        chapterListResult.Data |> Seq.length)
+                    <| (chapterListResult.Data |> List.ofSeq, (chapterListResult.Offset + fetchLimit))
             else
                 return None
         }
 
     AsyncSeq.unfoldAsync batchChapters 0
     |> AsyncSeq.concatSeq
-    |> AsyncSeq.toArray
+    |> AsyncSeq.toArrayAsync
     |> Console.status $"Fetching chapters for %s{manga |> Manga.getTitle}"
 
 let filterDuplicatedChapters (chapters: Chapter seq) =
@@ -103,26 +101,21 @@ let filterDuplicatedChapters (chapters: Chapter seq) =
 
 let pickChaptersByName (chapters: Chapter seq) (selectedChapters: string seq) =
     chapters
-    |> Seq.filter
-        (fun chapter ->
-            selectedChapters
-            |> Seq.contains (chapter |> formatChapter))
+    |> Seq.filter (fun chapter ->
+        selectedChapters
+        |> Seq.contains (chapter |> formatChapter))
 
 let selectChapters (chapters: Chapter seq) =
-    let prompt =
-        MultiSelectionPrompt.create<string> "Select chapters:"
+    let prompt = MultiSelectionPrompt.create<string> "Select chapters:"
 
     chapters
     |> Seq.sortBy Chapter.getFormattedChapterNumber
     |> Seq.groupBy Chapter.getFormattedVolumeNumber
     |> Seq.sortBy fst
-    |> Seq.iter
-        (fun (volume, volumeChapters) ->
-            prompt
-            |> MultiSelectionPrompt.addChoiceGroup
-                (volume |> formatVolume)
-                (volumeChapters |> Seq.map formatChapter)
-            |> ignore)
+    |> Seq.iter (fun (volume, volumeChapters) ->
+        prompt
+        |> MultiSelectionPrompt.addChoiceGroup (volume |> formatVolume) (volumeChapters |> Seq.map formatChapter)
+        |> ignore)
 
     prompt
     |> Console.prompt
@@ -133,21 +126,15 @@ let downloadChapters (manga: Manga) (chapters: Chapter seq) =
     let preferredQuality = preferences |> Preferences.getQuality
     let savePath = preferences |> Preferences.getSavePath
 
-    let downloadPage (downloadServerUrl: string) chapter page =
-        let downloadUrl =
-            Chapter.getChapterPageDownloadUrl
-                downloadServerUrl
-                preferredQuality
-                chapter
-                page
+    let downloadPage totalPages pageNum downloadUrl =
+        async {
+            $"Downloading page {pageNum} of {totalPages}"
+            |> Console.echo
 
-        let stream = File.createStream ()
+            let stream = File.createStream ()
 
-        stream |> Http.fetchFile downloadUrl
-
-    let downloadPages downloadServerUrl chapter pages =
-        pages
-        |> Seq.map (downloadPage downloadServerUrl chapter)
+            return! stream |> Http.fetchFile downloadUrl
+        }
 
     let createCbz pages chapter =
         let filename =
@@ -167,61 +154,51 @@ let downloadChapters (manga: Manga) (chapters: Chapter seq) =
         file
 
     chapters
-    |> Seq.map
-        (fun chapter ->
-            async {
-                let pages =
-                    chapter |> Chapter.getPages preferredQuality
+    |> Seq.map (fun chapter ->
+        async {
+            "Obtaining download information" |> Console.echo
 
-                let! downloadServerUrl =
-                    async {
-                        "Obtaining download server" |> Console.echo
-                        return! chapter |> Chapter.getChapterBaseUrl
-                    }
+            let! downloadInfo =
+                chapter
+                |> ChapterDownload.getChapterDownloadInformation
 
-                let! downloadedPages =
-                    pages
-                    |> downloadPages downloadServerUrl chapter
-                    |> Seq.mapi
-                        (fun index downloadExpr ->
-                            async {
-                                $"Downloading page {index + 1} of {pages |> Seq.length}"
-                                |> Console.echo
+            let pages =
+                downloadInfo
+                |> ChapterDownloadInfo.getPages preferredQuality
 
-                                return! downloadExpr
-                            })
-                    |> Async.Sequential
+            let download = downloadPage (pages |> Seq.length)
 
-                let isOk =
-                    downloadedPages |> Seq.forall Result.isOk
+            let! downloadedPages =
+                pages
+                |> Seq.map (ChapterDownload.getPageDownloadUrl downloadInfo preferredQuality)
+                |> Seq.mapi (fun index downloadUrl -> download (index + 1) downloadUrl)
+                |> Async.Sequential
 
-                match isOk with
-                | true ->
-                    "Creating CBZ" |> Console.echo
+            let isOk = downloadedPages |> Seq.forall Result.isOk
 
-                    createCbz
-                        (downloadedPages
-                         |> Seq.map Result.proceedIfOk
-                         |> Seq.cast<System.IO.Stream>
-                         |> Seq.zip pages)
-                        chapter
+            match isOk with
+            | true ->
+                "Creating CBZ" |> Console.echo
 
-                    "Done!" |> Console.echo
-                | false ->
-                    "Not all pages were downloaded successfully! Skipping..."
-                    |> Console.echo
-            })
+                createCbz
+                    (downloadedPages
+                     |> Seq.map Result.proceedIfOk
+                     |> Seq.cast<System.IO.Stream>
+                     |> Seq.zip pages)
+                    chapter
+
+                "Done!" |> Console.echo
+            | false ->
+                "Not all pages were downloaded successfully! Skipping..."
+                |> Console.echo
+        })
     |> Seq.zip chapters
-    |> Seq.map
-        (fun (chapter, expr) ->
-            async {
-                do Console.clear ()
+    |> Seq.map (fun (chapter, expr) ->
+        async {
+            do Console.clear ()
 
-                do!
-                    Console.live
-                        $"Obtaining chapter {chapter |> Chapter.getFormattedTitle}"
-                        expr
-            })
+            do! Console.live $"Obtaining chapter {chapter |> Chapter.getFormattedTitle}" expr
+        })
     |> Async.Sequential
     |> Async.Ignore
     |> Async.RunSynchronously

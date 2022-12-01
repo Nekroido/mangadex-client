@@ -59,9 +59,12 @@ module DiscriminatedUnion =
         |> FSharpType.GetUnionCases
         |> Seq.map (fun caseInfo -> caseInfo |> createCase :?> 'a)
 
-[<RequireQualifiedAccess>]
+[<RequireQualifiedAccess;AutoOpen>]
 module String =
     let join separator parts =
         parts
         |> Seq.filter (fun x -> String.IsNullOrWhiteSpace(x) = false)
         |> String.concat separator
+
+    let inline stringf format (x : ^a) = 
+        (^a : (member ToString : string -> string) (x, format))

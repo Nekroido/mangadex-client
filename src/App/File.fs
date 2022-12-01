@@ -19,7 +19,7 @@ type Metadata =
       publicationYear: int option
       tags: string seq
       volume: int option
-      issue: decimal }
+      issue: decimal option }
 
 let private mapCredits (entity: Relationship) =
     let typeToRole t =

@@ -2,7 +2,10 @@
 <Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
     <OutputType>Exe</OutputType>
-    <TargetFramework>net5.0</TargetFramework>
+    <TargetFramework>net7.0</TargetFramework>
+	<ProduceReferenceAssembly>false</ProduceReferenceAssembly>
+	<PublishSingleFile>true</PublishSingleFile>
+	<SelfContained>true</SelfContained>
   </PropertyGroup>
   <ItemGroup>
     <EmbeddedResource Update="Strings.resx" />
@@ -16,6 +19,7 @@
     <Compile Include="Data.fs" />
     <Compile Include="Manga.fs" />
     <Compile Include="Chapter.fs" />
+    <Compile Include="ChapterDownload.fs" />
     <Compile Include="File.fs" />
     <Compile Include="Pages\Manga.fs" />
     <Compile Include="Pages\Search.fs" />
@@ -26,5 +30,12 @@
     <None Include="test2.fsx" />
     <None Include="test3.fsx" />
   </ItemGroup>
-  <Import Project="..\..\.paket\Paket.Restore.targets" />
+  <ItemGroup>
+    <PackageReference Include="DotNetZip" Version="1.16.0" />
+    <PackageReference Include="FSharp.Configuration" Version="2.0.0" />
+    <PackageReference Include="FSharp.Control.AsyncSeq" Version="3.2.1" />
+    <PackageReference Include="FSharp.Data" Version="5.0.2" />
+    <PackageReference Include="FSharp.SystemTextJson" Version="1.0.7" />
+    <PackageReference Include="Spectre.Console" Version="0.45.0" />
+  </ItemGroup>
 </Project>
