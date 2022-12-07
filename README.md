@@ -1,2 +1,1 @@
-# mangadex-client
-MangaDex client written in F#
+#  MangaDex client written in F#
