@@ -21,6 +21,8 @@ type Metadata =
       volume: int option
       issue: decimal option }
 
+type Container = { ``ComicBookInfo/1.0``: Metadata }
+
 let private mapCredits (entity: Relationship) =
     let typeToRole t =
         match t with
@@ -45,7 +47,7 @@ let serialize metadata =
     let options = JsonSerializerOptions()
     options.Converters.Add(JsonFSharpConverter())
 
-    JsonSerializer.Serialize({| ``ComicBookInfo/1.0`` = metadata |}, options)
+    JsonSerializer.Serialize({ ``ComicBookInfo/1.0`` = metadata }, options)
 
 let createStream () = new MemoryStream()
 
@@ -90,13 +92,12 @@ type CBZBuilder() =
         zip.Comment <- metadata
 
         settings.Pages
-        |> Seq.iteri
-            (fun index (filename, page) ->
-                page.Seek(0, SeekOrigin.Begin) |> ignore
+        |> Seq.iteri (fun index (filename, page) ->
+            page.Seek(0, SeekOrigin.Begin) |> ignore
 
-                // adding or updating entry
-                zip.UpdateEntry($"%03d{index}{filename |> Path.getFileExtension}", page)
-                |> ignore)
+            // adding or updating entry
+            zip.UpdateEntry($"%03d{index}{filename |> Path.getFileExtension}", page)
+            |> ignore)
 
         zip.Save()
 

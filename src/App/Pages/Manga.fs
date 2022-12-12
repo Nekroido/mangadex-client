@@ -63,7 +63,10 @@ let showActions (manga: Manga) =
 
     manga |> renderMangaDetails |> Console.render
 
-    MenuPrompt.create<Action> "Select action:" (DiscriminatedUnion.listCases<Action> ()) Action.toString
+    MenuPrompt.create<Action>
+        "Select action:"
+        (DiscriminatedUnion.listCases<Action> ())
+        Action.toString
     |> Console.prompt
 
 let fetchChapters (manga: Manga) =
@@ -82,7 +85,8 @@ let fetchChapters (manga: Manga) =
             if offset < chapterListResult.Total then
                 return
                     Some
-                    <| (chapterListResult.Data |> List.ofSeq, (chapterListResult.Offset + fetchLimit))
+                    <| (chapterListResult.Data |> List.ofSeq,
+                        (chapterListResult.Offset + fetchLimit))
             else
                 return None
         }
@@ -114,7 +118,9 @@ let selectChapters (chapters: Chapter seq) =
     |> Seq.sortBy fst
     |> Seq.iter (fun (volume, volumeChapters) ->
         prompt
-        |> MultiSelectionPrompt.addChoiceGroup (volume |> formatVolume) (volumeChapters |> Seq.map formatChapter)
+        |> MultiSelectionPrompt.addChoiceGroup
+            (volume |> formatVolume)
+            (volumeChapters |> Seq.map formatChapter)
         |> ignore)
 
     prompt
@@ -170,7 +176,9 @@ let downloadChapters (manga: Manga) (chapters: Chapter seq) =
 
             let! downloadedPages =
                 pages
-                |> Seq.map (ChapterDownload.getPageDownloadUrl downloadInfo preferredQuality)
+                |> Seq.map (
+                    ChapterDownload.getPageDownloadUrl downloadInfo preferredQuality
+                )
                 |> Seq.mapi (fun index downloadUrl -> download (index + 1) downloadUrl)
                 |> Async.Sequential
 
@@ -197,7 +205,10 @@ let downloadChapters (manga: Manga) (chapters: Chapter seq) =
         async {
             do Console.clear ()
 
-            do! Console.live $"Obtaining chapter {chapter |> Chapter.getFormattedTitle}" expr
+            do!
+                Console.live
+                    $"Obtaining chapter {chapter |> Chapter.getFormattedTitle}"
+                    expr
         })
     |> Async.Sequential
     |> Async.Ignore

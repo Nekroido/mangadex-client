@@ -1,6 +1,5 @@
 module Http
 
-open System.IO
 open System.Net
 open FSharp.Data
 

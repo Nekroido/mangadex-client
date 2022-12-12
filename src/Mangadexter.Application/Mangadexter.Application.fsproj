@@ -1,0 +1,36 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>net7.0</TargetFramework>
+    <GenerateDocumentationFile>true</GenerateDocumentationFile>
+	<ProduceReferenceAssembly>false</ProduceReferenceAssembly>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <EmbeddedResource Include="chapters-sample.json" />
+    <Resource Include="preferences.yaml" />
+    <Compile Include="Common.fs">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Compile>
+    <Compile Include="Manga.fs" />
+    <Compile Include="Chapter.fs" />
+    <Compile Include="ChapterDownload.fs" />
+    <Compile Include="Mangadex.fs" />
+    <Compile Include="File.fs" />
+    <Compile Include="Preferences.fs" />
+  </ItemGroup>
+
+  <ItemGroup />
+
+  <ItemGroup>
+    <PackageReference Include="FSharp.Configuration" Version="2.0.0" />
+    <PackageReference Include="FSharp.Data" Version="5.0.2" />
+    <PackageReference Include="FSharp.SystemTextJson" Version="1.0.7" />
+    <PackageReference Include="FsToolkit.ErrorHandling" Version="4.0.0" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\Mangadexter.Core\Mangadexter.Core.fsproj" />
+  </ItemGroup>
+
+</Project>

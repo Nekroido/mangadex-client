@@ -6,7 +6,15 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <Compile Include="Utils.fs" />
     <Compile Include="Domain.fs" />
+    <Compile Include="DomainModules.fs" />
+    <Compile Include="Manga.fs" />
+    <Compile Include="Chapter.fs" />
+    <Compile Include="ChapterDownload.fs" />
+    <Compile Include="Persistence.fs" />
+    <Compile Include="File.fs" />
+    <Compile Include="Preferences.fs" />
   </ItemGroup>
 
 </Project>

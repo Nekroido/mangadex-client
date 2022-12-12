@@ -91,7 +91,9 @@ module Chapter =
     let getFormattedChapterNumber (chapter: T) =
         chapter
         |> getChapter
-        |> Option.bind (fun chapter -> chapter.ToString("000.###", CultureInfo.InvariantCulture) |> Some)
+        |> Option.bind (fun chapter ->
+            chapter.ToString("000.###", CultureInfo.InvariantCulture)
+            |> Some)
         |> Option.defaultValue "-"
 
     let getFormattedChapter (chapter: T) =
@@ -140,7 +142,7 @@ module Chapter =
 
 module ChapterDownloadInfo =
     type T = ChapterDownloadInfo
-    
+
     open Preferences
 
     let getBaseUrl (info: T) = info.BaseUrl
