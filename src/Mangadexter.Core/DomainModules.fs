@@ -121,6 +121,22 @@ module Language =
         | _ -> failwith $"Unsupported language: '{lang}'!"
 
 [<RequireQualifiedAccess>]
+module Translator =
+    let getFormatted { Name = name } = name
+
+[<RequireQualifiedAccess>]
+module Translation =
+    let getFormatted (v: Translation) : string =
+        let lang = v.TranslatedLanguage |> Language.getFormatted
+
+        v.Tranlsator
+        |> Option.map (
+            Translator.getFormatted
+            >> (sprintf "(%s, %s)" lang)
+        )
+        |> Option.defaultValue (sprintf "(%s)" lang)
+
+[<RequireQualifiedAccess>]
 module Manga =
     type t' = Manga
 
@@ -143,10 +159,8 @@ module Manga =
 module Chapter =
     type t' = Chapter
 
-    let formatChapter (chapter: t') =
-        [ chapter.Title
-          |> Option.map (Title.getValue >> sprintf "\"%s\"")
-          chapter.Volume
+    let getFormattedChapterNumber (chapter: t') =
+        [ chapter.Volume
           |> Option.map (
               VolumeNumber.getFormattedValue
               >> sprintf "Vol. %s"
@@ -156,6 +170,13 @@ module Chapter =
               ChapterNumber.getFormattedValue
               >> sprintf "Ch. %s"
           ) ]
+        |> Seq.map (Option.defaultValue "")
+        |> String.join " - "
+
+    let formatChapter (chapter: t') =
+        [ chapter |> getFormattedChapterNumber |> Some
+          chapter.Title
+          |> Option.map (Title.getValue >> sprintf "\"%s\"") ]
         |> Seq.map (Option.defaultValue "")
         |> String.join " - "
 

@@ -20,8 +20,6 @@
     <Compile Include="Preferences.fs" />
   </ItemGroup>
 
-  <ItemGroup />
-
   <ItemGroup>
     <PackageReference Include="FSharp.Configuration" Version="2.0.0" />
     <PackageReference Include="FSharp.Data" Version="5.0.2" />

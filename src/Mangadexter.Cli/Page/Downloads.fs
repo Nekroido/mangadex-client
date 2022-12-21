@@ -56,7 +56,9 @@ module Downloads =
                 ctx.Description <- ex.Message
                 ctx.StopTask()
             | Ok dl ->
-                let percentile = 100.0 / (dl.Pages |> Seq.length |> float)
+                let percentile =
+                    100.0 / (dl.Pages |> Seq.length |> float)
+                    |> Math.Ceiling
 
                 let! pages =
                     dl.Pages
@@ -70,7 +72,7 @@ module Downloads =
                         result)
                     |> AsyncSeq.toArrayAsync
 
-                let! cbzStream =
+                let! cbzData =
                     async {
                         ctx.Description <- "Creating CBZ archive"
                         ctx.IsIndeterminate <- true
@@ -88,7 +90,8 @@ module Downloads =
 
                 let filename =
                     sprintf
-                        "./manga/%s.cbz"
+                        "./manga/%s/%s.cbz"
+                        (manga |> Manga.getReadableTitle |> Path.toSafePath)
                         (chapter
                          |> Chapter.formatChapter
                          |> Path.toSafePath)
@@ -96,13 +99,15 @@ module Downloads =
                 let buildStoreArgs data : StoreFileArgs =
                     { Data = data; Filename = filename }
 
-                match! cbzStream
+                match! cbzData
                        |> Result.toOption
                        |> Option.get
                        |> (buildStoreArgs >> File.storeFile)
                     with
                 | Ok _ -> ctx.Description <- $"Saved CBZ file to {filename}"
-                | Error ex -> ctx.Description <- $"Failed to store CBZ file at {filename}"
+                | Error ex ->
+                    System.Diagnostics.Debug.Write(ex)
+                    ctx.Description <- $"Failed: {ex.Message}"
 
                 ctx.StopTask()
 

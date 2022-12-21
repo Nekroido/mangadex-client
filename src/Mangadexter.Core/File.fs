@@ -13,4 +13,4 @@ module File =
 
     type StoreFile = StoreFileArgs -> Async<Result<unit, exn>>
 
-    and StoreFileArgs = { Data: Stream; Filename: string }
+    and StoreFileArgs = { Data: byte array; Filename: string }

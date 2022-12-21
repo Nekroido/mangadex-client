@@ -107,9 +107,8 @@ module Console =
                 task {
                     return!
                         actions
-                        |> List.map (fst >> ctx.AddTask)
-                        |> List.zip actions
-                        |> List.map (fun ((_, action), task) -> async { do! action task })
+                        |> List.map (fun (label, action) ->
+                            async { do! action (label |> ctx.AddTask) })
                         |> Async.Sequential
                         |> Async.Ignore
                 })
