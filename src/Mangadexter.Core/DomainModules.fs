@@ -159,6 +159,15 @@ module Manga =
 module Chapter =
     type t' = Chapter
 
+    let getShortFormattedChapter (chapter: t') =
+        [ chapter.Number
+          |> Option.map (ChapterNumber.getFormattedValue)
+          chapter.Volume
+          |> Option.map (VolumeNumber.getFormattedValue) ]
+        |> Seq.map (Option.defaultValue "")
+        |> Seq.filter (String.IsNullOrEmpty >> not)
+        |> String.join "/"
+
     let getFormattedChapterNumber (chapter: t') =
         [ chapter.Volume
           |> Option.map (
@@ -171,6 +180,7 @@ module Chapter =
               >> sprintf "Ch. %s"
           ) ]
         |> Seq.map (Option.defaultValue "")
+        |> Seq.filter (String.IsNullOrEmpty >> not)
         |> String.join " - "
 
     let formatChapter (chapter: t') =
@@ -178,6 +188,7 @@ module Chapter =
           chapter.Title
           |> Option.map (Title.getValue >> sprintf "\"%s\"") ]
         |> Seq.map (Option.defaultValue "")
+        |> Seq.filter (String.IsNullOrEmpty >> not)
         |> String.join " - "
 
 [<RequireQualifiedAccess>]

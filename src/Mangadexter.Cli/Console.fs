@@ -102,7 +102,7 @@ module Console =
 
     let progress (actions: (string * (ProgressTask -> Async<unit>)) list) =
         AnsiConsole
-            .Progress()
+            .Progress(HideCompleted = false)
             .StartAsync(fun ctx ->
                 task {
                     return!

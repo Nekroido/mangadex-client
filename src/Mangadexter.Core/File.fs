@@ -9,7 +9,7 @@ module File =
     and CreateCBZArgs =
         { Manga: Manga
           Chapter: Chapter
-          DownloadedPages: Stream list }
+          DownloadedPages: byte array list }
 
     type StoreFile = StoreFileArgs -> Async<Result<unit, exn>>
 

@@ -8,7 +8,8 @@ open Mangadexter.Cli
 open Mangadexter.Application
 
 open FSharp.Control
-open System
+open FSharpPlus
+open FsToolkit.ErrorHandling
 
 [<RequireQualifiedAccess>]
 module Downloads =
@@ -49,45 +50,53 @@ module Downloads =
         (ctx: Spectre.Console.ProgressTask)
         =
         async {
-            let! result = Mangadex.getChapterDownloadInformation { Chapter = chapter }
+            let fetchChapterDlInfo chapter =
+                Mangadex.getChapterDownloadInformation { Chapter = chapter }
 
-            match result with
-            | Error ex ->
-                ctx.Description <- ex.Message
-                ctx.StopTask()
-            | Ok dl ->
-                let percentile =
-                    100.0 / (dl.Pages |> Seq.length |> float)
-                    |> Math.Ceiling
+            let increment percentile = ctx.Increment(percentile)
 
-                let! pages =
-                    dl.Pages
-                    |> List.map (string >> downloadPage)
-                    |> AsyncSeq.ofSeqAsync
-                    |> AsyncSeq.map (fun result ->
-                        match result with
-                        | Ok _ -> ctx.Increment(percentile)
-                        | Error ex -> ctx.Description <- ex
+            let setDescription message =
+                ctx.Description <-
+                    sprintf
+                        "%s [[%s]]: %s"
+                        (manga |> Manga.getReadableTitle)
+                        (chapter |> Chapter.getShortFormattedChapter)
+                        message
 
-                        result)
-                    |> AsyncSeq.toArrayAsync
+            let downloadPages percentile uris =
+                let total = uris |> Seq.length
 
-                let! cbzData =
-                    async {
-                        ctx.Description <- "Creating CBZ archive"
-                        ctx.IsIndeterminate <- true
+                let bumpStatus index =
+                    increment (percentile)
 
-                        return!
-                            { Manga = manga
-                              Chapter = chapter
-                              DownloadedPages =
-                                pages
-                                |> List.ofArray
-                                |> List.map (Result.toOption >> Option.get)
-                                |> List.map (fun s -> upcast s) }
-                            |> File.createCbz
-                    }
+                    sprintf "downloading page %d of %d" (index + 1) total
+                    |> setDescription
 
+                uris
+                |> List.mapi (fun index uri ->
+                    uri
+                    |> (string
+                        >> downloadPage
+                        >> (AsyncResult.map (fun stream ->
+                            bumpStatus index
+                            stream |> File.streamToBytes))))
+                |> AsyncSeq.ofSeqAsync
+                |> AsyncSeq.toListAsync
+                |> Async.map (fun results ->
+                    let pages, errors = results |> Result.partition
+
+                    match errors |> Seq.tryHead with
+                    | Some error -> Error(failwith error)
+                    | None -> pages |> Ok)
+
+            let buildCBZ pages =
+                { Manga = manga
+                  Chapter = chapter
+                  DownloadedPages = pages }
+                |> File.createCbz
+                |> AsyncResult.map File.streamToBytes
+
+            let saveCBZ data =
                 let filename =
                     sprintf
                         "./manga/%s/%s.cbz"
@@ -96,23 +105,40 @@ module Downloads =
                          |> Chapter.formatChapter
                          |> Path.toSafePath)
 
-                let buildStoreArgs data : StoreFileArgs =
-                    { Data = data; Filename = filename }
+                { Data = data; Filename = filename }
+                |> File.storeFile
+                |> AsyncResult.map (fun _ -> filename)
 
-                match! cbzData
-                       |> Result.toOption
-                       |> Option.get
-                       |> (buildStoreArgs >> File.storeFile)
-                    with
-                | Ok _ -> ctx.Description <- $"Saved CBZ file to {filename}"
-                | Error ex ->
-                    System.Diagnostics.Debug.Write(ex)
-                    ctx.Description <- $"Failed: {ex.Message}"
+            let! flow =
+                asyncResult {
+                    setDescription "fetching chapter download information"
+                    let! chapterInfo = fetchChapterDlInfo chapter
+                    let totalPages = chapterInfo.Pages |> Seq.length
 
-                ctx.StopTask()
+                    let percentile = 100. / ((totalPages + 2) |> float) // pages + build CBZ + save CBZ
 
-                return ()
+                    increment percentile
 
+                    setDescription "downloading pages"
+                    let! pages = downloadPages percentile chapterInfo.Pages
+
+                    setDescription "building CBZ"
+                    let! cbzData = buildCBZ pages
+                    increment percentile
+
+                    setDescription "saving CBZ"
+                    let! filename = saveCBZ cbzData
+                    increment percentile
+
+                    return filename
+                }
+
+            match flow with
+            | Ok filename -> setDescription $"saved to {filename}"
+            | Error ex -> setDescription $"faulted with \"{ex.Message}\""
+
+            ctx.StopTask()
+            return ()
         }
 
     let view (state: State) dispatch =

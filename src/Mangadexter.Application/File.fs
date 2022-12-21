@@ -68,6 +68,8 @@ module File =
 
     let createStream () = new MemoryStream()
 
+    let streamToBytes (stream: MemoryStream) : byte array = stream.ToArray()
+
     let fetchFile url output =
         async {
             let! request = url |> Http.AsyncRequestStream
@@ -84,7 +86,7 @@ module File =
                     Result.Error $"File download resulted in {request.StatusCode} status"
         }
 
-    let createCbz (args: CreateCBZArgs) : Async<Result<byte array, exn>> =
+    let createCbz (args: CreateCBZArgs) : Async<Result<MemoryStream, exn>> =
         async {
             try
                 use stream = new MemoryStream()
@@ -93,15 +95,17 @@ module File =
 
                 args.DownloadedPages
                 |> Seq.iteri (fun index data ->
+                    use dataStream = new MemoryStream(data)
                     let entry = file.CreateEntry(index |> String.format "000")
                     use entryStream = entry.Open()
 
-                    data.Seek(0, SeekOrigin.Begin) |> ignore
+                    dataStream.Seek(0, SeekOrigin.Begin) |> ignore
 
-                    data.CopyTo(entryStream)
-                    entryStream.Flush())
+                    dataStream.CopyTo(entryStream)
+                    entryStream.Flush()
+                    dataStream.Flush())
 
-                return stream.ToArray() |> Ok
+                return stream |> Ok
             with
             | ex -> return Error ex
         }

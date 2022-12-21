@@ -24,7 +24,8 @@
     <PackageReference Include="FSharp.Configuration" Version="2.0.0" />
     <PackageReference Include="FSharp.Data" Version="5.0.2" />
     <PackageReference Include="FSharp.SystemTextJson" Version="1.0.7" />
-    <PackageReference Include="FsToolkit.ErrorHandling" Version="4.0.0" />
+    <PackageReference Include="FSharpPlus" Version="1.3.2" />
+    <PackageReference Include="FsToolkit.ErrorHandling" Version="4.2.1" />
   </ItemGroup>
 
   <ItemGroup>
